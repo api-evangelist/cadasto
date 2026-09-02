@@ -1,0 +1,126 @@
+generated: '2026-09-02'
+method: derived
+source: >-
+  Derived by walking every 4xx/5xx response declared across the eight OpenAPI documents Cadasto
+  publishes (openapi/*.json, 126 operations), enriched from
+  https://docs.cadasto.io/docs/quick-start (concurrency and delete semantics) and
+  https://docs.cadasto.io/docs/guides/authentication (the OAuth token-endpoint error envelope).
+format: none
+rfc9457: false
+media_type: application/json
+envelope_documented: false
+description: >-
+  Cadasto's published contracts declare status codes but NOT error bodies. No 4xx or 5xx response
+  in any of the eight documents carries a content block, a schema, or (with one exception) even a
+  description string — the EHR, Demographic, Definition, Query and Admin documents declare their
+  error responses with an empty description. There is no application/problem+json anywhere, no
+  error-code vocabulary, and no error reference page in the docs. The one error envelope Cadasto
+  documents in prose belongs to the OAuth token endpoint, not to the API.
+counts:
+  operations_scanned: 126
+  error_responses_declared: 209
+  with_response_schema: 0
+  with_non_empty_description: 8
+problem_types:
+- status: 400
+  title: Bad request
+  occurrences: 57
+  apis: [Demographic API (22), EHR API (13), Cadasto Additional API (12), Query API (6), Definition API (3), Admin API (1)]
+  meaning: >-
+    Malformed request — invalid JSON/XML body, an unparseable AQL statement, a bad UID format, or
+    a missing required parameter.
+  remediation: Fix the request payload or parameters. Not retryable unchanged.
+  source: declared in openapi/*.json; description string is empty in the published documents
+- status: 404
+  title: Not found
+  occurrences: 101
+  apis: [Demographic API (40), EHR API (29), Cadasto Additional API (20), Admin API (5), Query API (4), Definition API (3)]
+  meaning: >-
+    The addressed EHR, composition, directory, party, template, stored query or datamap does not
+    exist — or has been logically deleted and is no longer resolvable at that address.
+  remediation: Verify the identifier. For a composition, a logically deleted version still resolves by version_uid but not by versioned_object_uid.
+- status: 405
+  title: Method not allowed
+  occurrences: 1
+  apis: [Admin API]
+- status: 406
+  title: Not acceptable
+  occurrences: 1
+  apis: [Definition API]
+  meaning: The requested representation format (opt/json/xml) is not available for this template.
+- status: 408
+  title: Request timeout
+  occurrences: 6
+  apis: [Query API]
+  meaning: >-
+    An AQL query exceeded the server's execution budget. Notable: 408 is declared on ALL SIX query
+    operations and NOWHERE else in the whole surface — the query engine is the only component
+    Cadasto's contract admits can time out.
+  remediation: Narrow the AQL (add WHERE constraints, use offset/fetch paging) and retry.
+  retryable: true
+- status: 409
+  title: Conflict
+  occurrences: 12
+  apis: [Demographic API (6), EHR API (5), Definition API (1)]
+  meaning: >-
+    The write conflicts with existing state — e.g. creating an EHR for a subject that already has
+    one, uploading a stored query name that exists, or re-linking an EHR that already carries a
+    cadasto-person-uid link (the link is append-only).
+  remediation: Read the current state and decide whether to update instead of create.
+- status: 412
+  title: Precondition failed
+  occurrences: 8
+  apis: [Demographic API (5), EHR API (3)]
+  meaning: >-
+    RFC 7232 optimistic-concurrency failure. The If-Match version_uid supplied does not match the
+    latest version, meaning another client wrote first.
+  remediation: >-
+    Documented verbatim in the Quick Start — "Retrieve the latest version and retry." This is the
+    single most important error for an agent doing writes: it is the safe-by-default lost-update
+    guard, and it is retryable after a re-read.
+  retryable: after re-read
+  source: https://docs.cadasto.io/docs/quick-start
+- status: 422
+  title: Unprocessable entity
+  occurrences: 15
+  apis: [Demographic API (10), EHR API (5)]
+  meaning: >-
+    Syntactically valid but semantically invalid — most commonly a COMPOSITION that fails
+    validation against the operational template named by its archetype_node_id.
+  remediation: >-
+    Fetch a generated example for the template
+    (GET /definition/template/adl1.4/{template_id}/example) and compare structure.
+- status: 501
+  title: Not implemented
+  occurrences: 8
+  apis: [Definition API (5), EHR API (2), Cadasto Additional API (1)]
+  meaning: >-
+    The endpoint is declared in the openEHR ITS-REST contract but not implemented by this server.
+    This is the ONLY error the published documents describe in words — verbatim: "This endpoint is
+    not implemented."
+  remediation: >-
+    A 501 here is a permanent capability gap, not a transient fault. Five of the eight are in the
+    Definition API — consistent with the conformance statement's declaration that ADL 2 / AOM 2 is
+    not implemented while the ADL2 paths are still present in the document.
+  retryable: false
+
+oauth_token_endpoint_errors:
+  note: >-
+    The only error envelope Cadasto documents in prose. It belongs to the authorization server,
+    not to the API, and follows RFC 6749 section 5.2.
+  media_type: application/json
+  shape: '{ "error": "...", "error_description": "..." }'
+  source: https://docs.cadasto.io/docs/guides/authentication
+  codes:
+    invalid_client: Wrong client_id or client_secret
+    invalid_grant: Incorrect grant_type
+    invalid_request: Invalid client credentials or refresh token
+    invalid_scope: Requested scope not allowed for this client
+
+gaps:
+  - No error body schema is declared on any of the 209 error responses across the eight documents.
+  - No error reference page exists in the documentation.
+  - No machine-readable error code vocabulary, no error type URIs, no RFC 9457 problem+json.
+  - No 429 is declared anywhere, consistent with rate-limits/cadasto-rate-limits.yml recording
+    zero published limits.
+  - No 5xx other than 501 is declared, so a client has no contracted shape for a server fault.

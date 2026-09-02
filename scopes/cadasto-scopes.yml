@@ -1,0 +1,44 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://docs.cadasto.io/docs/guides/authentication (token request "scope" parameter and the
+  scopes_supported field of the /.well-known/smart-configuration response shown verbatim in the
+  docs) and https://docs.cadasto.io/docs/faq ("Requested scopes: api.read api.write" in the
+  credential-request template).
+docs: https://docs.cadasto.io/docs/guides/authentication
+derived_baseline: >-
+  derive-oauth-scopes.py found ZERO oauth2 securitySchemes in openapi/ — the six openEHR
+  ITS-REST documents Cadasto publishes carry an empty components.securitySchemes, and the
+  Additional API declares only http/bearer. Every scope below therefore comes from the prose
+  documentation, not from a machine-readable contract.
+flow: clientCredentials
+token_endpoint: https://{mycompany}.auth.prod.cadasto.io/oauth/token
+scope_delimiter: ' '
+scopes:
+- name: api.read
+  description: >-
+    Read access to the Cadasto API surface. Documented as one of the two scopes advertised by
+    scopes_supported and requested at credential issuance.
+- name: api.write
+  description: >-
+    Write access to the Cadasto API surface. Documented as one of the two scopes advertised by
+    scopes_supported and requested at credential issuance.
+granularity: coarse
+notes:
+  - >-
+    Only two scopes are published, and they are platform-wide read/write. There is no per-API
+    (EHR vs Demographic vs Admin), per-resource or per-operation scope in the public
+    documentation, so an agent granted api.write on a Cadasto tenant can also reach the Admin
+    API's physically destructive operations unless the tenant restricts them by some other
+    means the docs do not describe.
+  - >-
+    The docs say the live /.well-known/smart-configuration response "may include additional
+    fields"; a tenant's actual scopes_supported may be richer than the two documented here.
+    Confirming that requires an issued tenant, so it is recorded as unknown rather than guessed.
+  - >-
+    SMART on openEHR is declared fully supported, but no SMART scope grammar
+    (patient/*.read, user/*.write, launch/patient) is published on a public Cadasto page.
+gaps:
+  - No scopes reference page exists; the two scope names appear only as examples inside the
+    authentication guide and the FAQ credential-request template.
+  - No scope-to-operation mapping is published.

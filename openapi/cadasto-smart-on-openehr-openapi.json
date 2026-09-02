@@ -1,0 +1,15 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Cadasto SMART on openEHR (Reference)",
+    "version": "1.0.0",
+    "description": "This file provides a lightweight reference for SMART on openEHR within Cadasto.\nIt intentionally does not replicate the full specification. Instead, it points\nto the official SMART on openEHR documentation, which defines the canonical\nbehaviors, flows, and endpoints.\n\nUse this as a discovery pointer in documentation bundles or tooling that expects\nan OpenAPI document. For full details, refer to:\nhttps://specifications.openehr.org/releases/ITS-REST/development/smart_app_launch.html\n"
+  },
+  "servers": [
+    {
+      "url": "https://auth.customer.cadasto.io"
+    }
+  ],
+  "paths": {},
+  "x-ext-urls": {}
+}

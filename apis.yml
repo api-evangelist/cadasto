@@ -1,23 +1,294 @@
 aid: cadasto
 name: Cadasto
-description: 'Cadasto is a company surfaced via the API Evangelist harvest backlog (source: openehr-coalition)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Cadasto B.V. is a Dutch health-IT company (Alkmaar, Netherlands) that builds a vendor-neutral
+  Clinical Data Repository on the openEHR standard. The Cadasto CDR stores structured care data
+  as openEHR compositions and exposes the openEHR ITS-REST 1.0.3 API surface — EHR, Query
+  (AQL), Definition, Demographic, Admin and System — plus a Cadasto-specific Additional API for
+  Datamap (a simplified JSON projection of openEHR paths), episodes of care and terminology
+  helpers, a bidirectional FHIR R3 facade, and SMART-on-openEHR app launch. Access is OAuth 2.0
+  client-credentials per tenant. Cadasto also publishes an unusually strong agent surface for
+  its size: a live anonymous MCP server for openEHR modelling knowledge, eight packaged Agent
+  Skills, a Claude Code plugin marketplace, an llms.txt, and a public openEHR conformance
+  statement naming every specification version it does and does not implement.
+image: https://www.cadasto.com/wp-content/uploads/2025/11/cropped-cadasto-favicon-192x192.png
 url: https://raw.githubusercontent.com/api-evangelist/cadasto/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:openehr-coalition
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-09-02'
 modified: '2026-09-02'
 tags:
-- Company
-apis: []
+- Healthcare
+- Health IT
+- openEHR
+- Electronic Health Records
+- Clinical Data Repository
+- Interoperability
+- FHIR
+- Vendor Neutral Archive
+- Clinical Data
+- AQL
+- MCP
+- Agent Skills
+- Netherlands
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+
+apis:
+- name: Cadasto EHR API
+  description: >-
+    The openEHR ITS-REST EHR API as implemented and published by Cadasto: create and read EHRs,
+    read and update EHR_STATUS, commit/retrieve/update/logically-delete versioned COMPOSITIONs,
+    manage the DIRECTORY (folder) structure, create and read CONTRIBUTIONs for atomic multi-object
+    commits, and read/write ITEM_TAGs. 33 operations. Updates use RFC 7232 If-Match optimistic
+    concurrency; deletes are logical and preserve version history for audit.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, Electronic Health Records, Clinical Data, Healthcare, Versioning]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-ehr-api-openapi.json
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: Overlay
+    url: overlays/cadasto-ehr-api-overlay.yaml
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+
+- name: Cadasto Query API (AQL)
+  description: >-
+    The openEHR ITS-REST Query API: execute ad-hoc Archetype Query Language (AQL) queries with
+    bound parameters, and execute stored queries by qualified name and version, over GET or POST.
+    6 operations. AQL queries are archetype-path based and therefore portable across templates
+    and across conformant openEHR servers.
+  humanURL: https://docs.cadasto.io/query-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, AQL, Query, Clinical Data, Healthcare]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-query-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: Overlay
+    url: overlays/cadasto-query-api-overlay.yaml
+
+- name: Cadasto Definition API
+  description: >-
+    The openEHR ITS-REST Definition API: upload, list and retrieve ADL 1.4 Operational Templates
+    (OPT) and ADL 2 templates, fetch a generated example composition for a template, and store,
+    list and version stored AQL queries. 12 operations. Cadasto supports multiple published
+    versions of the same template, addressed as {template_id}::{uid}.
+  humanURL: https://docs.cadasto.io/definition-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, Templates, ADL, AQL, Healthcare]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-definition-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: Overlay
+    url: overlays/cadasto-definition-api-overlay.yaml
+
+- name: Cadasto Demographic API
+  description: >-
+    The openEHR ITS-REST Demographic API: create, read, update and delete PERSON, ORGANISATION,
+    ROLE, AGENT and GROUP parties, read versioned parties and their revision history, create
+    demographic CONTRIBUTIONs, and manage ITEM_TAGs on every party type. 42 operations.
+    Demographic data is versioned and stored separately from clinical content by design.
+  humanURL: https://docs.cadasto.io/demographic-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, Demographics, Identity, Healthcare, Clinical Data]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-demographic-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: Overlay
+    url: overlays/cadasto-demographic-api-overlay.yaml
+
+- name: Cadasto Admin API
+  description: >-
+    The openEHR ITS-REST Admin API: privileged, physically destructive operations — delete a
+    single EHR, delete all EHRs, merge two EHRs, delete a composition outright, and delete a
+    template. 5 operations. Marked x-status DEVELOPMENT in the published document. These are the
+    only operations in the Cadasto surface that are NOT reversible.
+  humanURL: https://docs.cadasto.io/admin-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, Administration, Healthcare, Data Management]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-admin-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: Overlay
+    url: overlays/cadasto-admin-api-overlay.yaml
+
+- name: Cadasto System API
+  description: >-
+    The openEHR ITS-REST System API: a single OPTIONS operation returning server capabilities,
+    the openEHR specification versions the server implements, and its conformance profile. This
+    is the machine-readable counterpart of Cadasto's published PDF conformance statement.
+  humanURL: https://docs.cadasto.io/system-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags: [openEHR, Conformance, Discovery, Healthcare]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-system-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: Overlay
+    url: overlays/cadasto-system-api-overlay.yaml
+
+- name: Cadasto Additional API
+  description: >-
+    Cadasto's own extension surface on top of openEHR REST, described by the vendor as
+    "Cadasto-specific... This API only works within Cadasto". 27 operations across Datamap
+    definitions and Datamap data (a simplified alias-to-openEHR-path JSON format for search,
+    read and write), episodes of care with activate/deactivate/destroy, a FHIR ValueSet
+    terminology helper, user info and caseload, and Kubernetes-style startup/live/ready health
+    probes. Bearer JWT auth. No operationIds are declared in the published document.
+  humanURL: https://docs.cadasto.io/extra-api
+  baseURL: https://api.customer.cadasto.io
+  tags: [openEHR, Datamap, Episodes of Care, Terminology, FHIR, Healthcare]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-extra-api-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: Overlay
+    url: overlays/cadasto-extra-api-overlay.yaml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+
+- name: Cadasto SMART on openEHR
+  description: >-
+    A deliberately minimal OpenAPI document that acts as a discovery pointer to the SMART on
+    openEHR specification for app launch, service discovery and third-party app authorization
+    against a Cadasto tenant. It declares zero operations by design and points at the canonical
+    specification rather than restating it.
+  humanURL: https://docs.cadasto.io/smart-on-openehr
+  baseURL: https://auth.customer.cadasto.io
+  tags: [openEHR, SMART on openEHR, OAuth, App Launch, Healthcare]
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-smart-on-openehr-openapi.json
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+
+- name: openEHR Assistant MCP Server
+  description: >-
+    Cadasto's live, hosted, anonymous Model Context Protocol server for openEHR modelling work:
+    12 tools (CKM archetype and template search/get, openEHR terminology resolution, BMM type
+    specification search/get, bundled guide and example search/get), 14 guided prompts, 50
+    resources and 3 resource templates under openehr:// URIs. Streamable HTTP. Probed live on
+    2026-09-02 — initialize and tools/list both returned 200 with no credentials.
+  humanURL: https://cadasto.github.io/openehr-assistant/
+  baseURL: https://openehr-assistant-mcp.apps.cadasto.com/
+  tags: [MCP, openEHR, Agents, Clinical Modeling, Healthcare]
+  properties:
+  - type: MCPServer
+    url: mcp/cadasto-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/cadasto-tool-crosswalk.yml
+  - type: SourceCode
+    url: https://github.com/Cadasto/openehr-assistant-mcp
+  - type: Documentation
+    url: https://cadasto.github.io/openehr-assistant/
+
 common:
 - type: Website
   url: https://www.cadasto.com/
+- type: DeveloperPortal
+  url: https://docs.cadasto.io/docs/overview
+- type: Documentation
+  url: https://docs.cadasto.io/docs/overview
+- type: APIReference
+  url: https://docs.cadasto.io/ehr-api
+- type: GettingStarted
+  url: https://docs.cadasto.io/docs/quick-start
+- type: Authentication
+  url: authentication/cadasto-authentication.yml
+- type: OAuthScopes
+  url: scopes/cadasto-scopes.yml
+- type: FAQ
+  url: https://docs.cadasto.io/docs/faq
+- type: Support
+  url: https://www.cadasto.com/contact/
+- type: Blog
+  url: https://www.cadasto.com/blog/
+- type: BlogRSS
+  url: https://www.cadasto.com/feed/
+- type: GitHubOrganization
+  url: https://github.com/Cadasto
+- type: SignUp
+  url: https://www.cadasto.com/get-started/
+- type: PrivacyPolicy
+  url: https://www.cadasto.com/privacy-and-cookie-statement/
+- type: LinkedIn
+  url: https://www.linkedin.com/company/cadasto/
+- type: MCPServer
+  url: mcp/cadasto-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/cadasto-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/cadasto-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Packages
+  url: packages/cadasto-packages.yml
+- type: SDKs
+  url: packages/cadasto-packages.yml
+- type: WellKnown
+  url: well-known/cadasto-well-known.yml
+- type: SecurityTxt
+  url: well-known/cadasto-security.txt
+- type: Security
+  url: security/cadasto-vulnerability-disclosure.yml
+- type: VulnerabilityDisclosure
+  url: security/cadasto-vulnerability-disclosure.yml
+- type: TrustCenter
+  url: security/cadasto-trust-center.yml
+- type: Compliance
+  url: security/cadasto-trust-center.yml
+- type: DomainSecurity
+  url: security/cadasto-domain-security.yml
+- type: Conformance
+  url: conformance/cadasto-conformance.yml
+- type: Conventions
+  url: conventions/cadasto-conventions.yml
+- type: ErrorCatalog
+  url: errors/cadasto-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/cadasto-lifecycle.yml
+- type: DataModel
+  url: data-model/cadasto-data-model.yml
+- type: Plans
+  url: plans/cadasto-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/cadasto-rate-limits.yml
+- type: Sandbox
+  url: sandbox/cadasto-sandbox.yml
+- type: ChangeLog
+  url: changelog/cadasto-changelog.yml
+
+x-enrichment:
+  date: '2026-09-02'
+  status: enriched
+  artifacts_added: 47
+  pass: local-v1

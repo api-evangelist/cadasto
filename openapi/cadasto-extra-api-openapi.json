@@ -1,0 +1,1413 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Cadasto Additional API",
+    "version": "1.0.0",
+    "description": "Additional API on top of the openEHR REST API, specific to Cadasto.\nThe endpoints in this specification are Cadasto-specific and are intended\nto make it easier for app builders to interact with openEHR (e.g. datamaps).\nThis API only works within Cadasto.\n"
+  },
+  "servers": [
+    {
+      "url": "https://api.customer.cadasto.io"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health checks for monitoring and orchestration.\nUsed for startup, liveness, and readiness probes.\n"
+    },
+    {
+      "name": "User",
+      "description": "User information and caseload for the authenticated user.\n"
+    },
+    {
+      "name": "Datamap Definition",
+      "description": "Management of datamap definitions (XML). Defines what data is available\nand how it can be mapped/queried for Cadasto-specific integrations.\n"
+    },
+    {
+      "name": "Datamap Query",
+      "description": "Run datamap queries and manage datamap data.\nSupports ad-hoc XML queries and CRUD via JSON for Cadasto.\n"
+    },
+    {
+      "name": "Terminology",
+      "description": "Terminology helpers, such as retrieving FHIR ValueSet URLs.\n"
+    },
+    {
+      "name": "Episode",
+      "description": "CRUD on episodes within an EHR and status changes (activate/deactivate).\nEpisodes group medical data around a clinical problem or episode of care\nacross time and encounters.\n"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin-only actions, such as permanently deleting (destroy) episodes.\n"
+    }
+  ],
+  "paths": {
+    "/extra/health/startup": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Startup probe",
+        "description": "Verifies the application has started correctly.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "status": "ok",
+                      "output": "library: ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness probe",
+        "description": "Verifies the application is still alive.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "status": "ok",
+                      "output": "db: ping ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readiness probe",
+        "description": "Verifies the application is ready to receive traffic.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "status": "ok",
+                      "output": "stats: 117/47/683 app_env: production"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/v1/user/info": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get user info",
+        "description": "Returns basic information about the authenticated user.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/role"
+          },
+          {
+            "$ref": "#/components/parameters/identifier"
+          },
+          {
+            "$ref": "#/components/parameters/identifierType"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "examples": {
+                "patient": {
+                  "summary": "Patient lookup",
+                  "value": {
+                    "id": "<redacted>",
+                    "fhir_patient_id": "<redacted>",
+                    "ehr_id": "<redacted>",
+                    "profile": {
+                      "name": "Arie Achterweg",
+                      "nickname": "Arie",
+                      "email": "arie@code24.nl",
+                      "birth_date": "19840513",
+                      "patientId": "9999999001"
+                    },
+                    "role": {
+                      "id": "<redacted>",
+                      "all": [
+                        {
+                          "uid": "<redacted>",
+                          "name": "Patient"
+                        }
+                      ]
+                    },
+                    "success": true
+                  }
+                },
+                "practitioner": {
+                  "summary": "Practitioner lookup",
+                  "value": {
+                    "id": "<redacted>",
+                    "fhir_patient_id": "<redacted>",
+                    "ehr_id": "",
+                    "profile": {
+                      "name": "Denillo Valkenier",
+                      "nickname": "Denillo",
+                      "email": null,
+                      "birth_date": "19710530",
+                      "patientId": null
+                    },
+                    "role": {
+                      "id": "<redacted>",
+                      "all": [
+                        {
+                          "uid": "<redacted>",
+                          "name": "Zorgverlener"
+                        }
+                      ]
+                    },
+                    "success": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "message": "Bad request.",
+                      "errors": [
+                        " => The 'role' parameter is required.",
+                        " => The 'identifier' parameter is required.",
+                        " => The 'identifierType' parameter is required."
+                      ],
+                      "exception": [
+                        {
+                          "type": "Code24\\\\Slim\\\\Http\\\\Exception\\\\HttpBadRequestException",
+                          "code": 400,
+                          "message": "Bad request.",
+                          "file": "/app/src/Controller/UserController.php",
+                          "line": 82
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "message": "User not found.",
+                      "exception": [
+                        {
+                          "type": "Slim\\\\Exception\\\\HttpNotFoundException",
+                          "code": 404,
+                          "message": "User not found.",
+                          "file": "/app/src/Controller/UserController.php",
+                          "line": 100
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/v1/user/caseload": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get user caseload",
+        "description": "Returns the caseload of the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "totalCount": 0,
+                      "patients": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/v1/definition/datamap": {
+      "get": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "List datamap definitions",
+        "description": "Returns a list of available datamap definitions.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "examples": {
+                  "default": {
+                    "value": [
+                      "admission_cancelled",
+                      "admission_details",
+                      "Rapportage",
+                      "T0004Dagboek",
+                      "Verpleegkundige_Anamnese",
+                      "vital_signs"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extra/v1/definition/datamap/{datamapName}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/datamapName"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "Get datamap definition",
+        "description": "Retrieves the datamap definition (XML) for the given name.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "value": "<?xml version=\"1.0\"?>\n<datamap template=\"Proactieve Zorgplanning\">\n  <paths add=\"pzp_gesprek._root\" path=\"/context/other_context[at0003]/items[openEHR-EHR-CLUSTER.pzp_conversation.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"pzp_gesprek.type_gesprek\" path=\"/items[at0001]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"pzp_gesprek.aanleiding_gesprek\" path=\"/items[at0002]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"pzp_gesprek.relatie_met_eerder_pzpgesprek\" path=\"/items[at0003]/value\" comment=\"DV_IDENTIFIER\"/>\n  <paths add=\"pzp_gesprek.processtatus\" path=\"/items[at0004]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"pzp_gesprek.datum_laatste_bevestiging\" path=\"/items[at0005]/value\" comment=\"DV_DATE\"/>\n  <paths add=\"pzp_gesprek.toelichting\" path=\"/items[at0006]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"type_verklaring\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0005]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"status\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"beschrijving\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0006]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"conditie\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0007]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[openEHR-EHR-CLUSTER.values_and_goals.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"waarden_en_doelen.wat_is_belangrijk_voor_de_patint\" path=\"/items[at0001]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.persoonlijke_waarden\" path=\"/items[at0002]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.levensdoelen\" path=\"/items[at0003]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.zingevingsaspecten\" path=\"/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.narratieve_toelichting\" path=\"/items[at0005]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"opmerking\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0038]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"geldigheid_start\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0053]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldigheid_eind\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0054]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"revisie_verloop_datum\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0056]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"laatst_gepdatet\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0055]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"persoon._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[openEHR-EHR-CLUSTER.person.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.naam\" path=\"/items[at0001]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.label\" path=\"/items[at0011]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.gestructureerde_naam._root\" path=\"/items[at0002]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.identificatie\" path=\"/items[at0003]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.rol\" path=\"/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.elektronische_communicatie._root\" path=\"/items[at0006]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.organisatie._root\" path=\"/items[at0007]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.aanvullende_gegevens._root\" path=\"/items[at0008]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.opmerking\" path=\"/items[at0010]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"mandaat\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0027]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"digitale_versie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0060]\" comment=\"CLUSTER\"/>\n  <paths add=\"verklaring_locatie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0058]\" comment=\"CLUSTER\"/>\n  <paths add=\"verklaring_locatie.locatie\" path=\"/items[at0030]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"uitbreiding._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0061]\" comment=\"CLUSTER\"/>\n  <paths add=\"intentie_van_zorg\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0002]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"onderbouwing\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0056]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"toelichting_behandelgrenzen\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0008]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"reanimatiebesluit\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0009]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0014]\" comment=\"CLUSTER\"/>\n  <paths add=\"per_interventie.interventie\" path=\"/items[at0015]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie.besluit\" path=\"/items[at0034]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie.voorwaarde\" path=\"/items[at0039]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"per_interventie.toelichting\" path=\"/items[at0040]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"patint_genformeerd\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0042]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"naasten_genformeerd\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0043]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"algemene_toelichting\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0044]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"laatst_bijgewerkt\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0046]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldig_vanaf\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0047]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldig_tot\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0048]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"herziening_gepland\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0049]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"grondslag\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0050]/value\" comment=\"DV_TEXT\"/>\n</datamap>\n",
+                      "category": "API",
+                      "name": "proactieve_zorgplanning",
+                      "type": "datamap",
+                      "layer": 1,
+                      "owner_uid": "<redacted>",
+                      "timestamp": "2026-02-10 08:40:51",
+                      "uid": "<redacted>",
+                      "comment": ""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "Create or update datamap definition",
+        "description": "Creates or updates a datamap definition (XML body).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "Delete datamap definition",
+        "description": "Deletes the datamap definition with the given name.",
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "Check datamap definition exists",
+        "description": "Checks whether a datamap definition exists.",
+        "responses": {
+          "200": {
+            "description": "Exists"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/definition/datamap/{datamapName}/schema": {
+      "get": {
+        "tags": [
+          "Datamap Definition"
+        ],
+        "summary": "Get datamap JSON schema",
+        "description": "Retrieves the JSON Schema that belongs to the datamap.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/datamapName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/schema+json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "id": "Rapportage::datamap::daf4749d-6593-3584-a9e5-778dfe642e67",
+                      "title": "T0016 Rapportage.v1",
+                      "type": "object",
+                      "properties": {
+                        "Datum en Tijd": {
+                          "type": "string",
+                          "rmType": "DV_DATE_TIME",
+                          "dependencies": [],
+                          "required": true,
+                          "format": "date_time",
+                          "href": "/context/start_time",
+                          "title": "Context start time"
+                        },
+                        "Zorgverlener": {
+                          "type": "string",
+                          "rmType": "PARTY_IDENTIFIED/name",
+                          "dependencies": [],
+                          "required": false,
+                          "href": "/content/provider/name",
+                          "title": "Rapportage",
+                          "description": "Rapportage Composition"
+                        },
+                        "Zorgverlener_uid": {
+                          "type": "unknown",
+                          "rmType": "EVALUATION//provider/external_ref/id/value",
+                          "dependencies": [],
+                          "required": true,
+                          "_exception": "Class [OBJECT_ID] not instantiable.",
+                          "href": "/content/provider/external_ref/id/value",
+                          "title": "Rapportage",
+                          "description": "Rapportage Composition"
+                        },
+                        "Type Contact": {
+                          "type": "object",
+                          "rmType": "DV_CODED_TEXT",
+                          "dependencies": [],
+                          "required": false,
+                          "oneOf": [
+                            {
+                              "code": "at0021",
+                              "value": "Face to face"
+                            },
+                            {
+                              "code": "at0022",
+                              "value": "Ear to ear"
+                            },
+                            {
+                              "code": "at0023",
+                              "value": "Bit to Bit"
+                            },
+                            {
+                              "code": "at0024",
+                              "value": "Geen"
+                            }
+                          ],
+                          "minItems": 0,
+                          "maxItems": 1,
+                          "href": "/context/other_context[at0001]/items[at0020]/value",
+                          "title": "Type contact",
+                          "description": "Type contact"
+                        },
+                        "Rapportage": {
+                          "type": "string",
+                          "rmType": "DV_TEXT/value",
+                          "dependencies": [],
+                          "required": true,
+                          "href": "/content/data[at0001]/items[at0002]/value/value",
+                          "title": "Unknown"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/datamap": {
+      "post": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Ad-hoc datamap query (XML body)",
+        "description": "Executes an ad-hoc query based on an XML query body.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/datamap/{datamapName}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/datamapName"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Query datamap data (list)",
+        "description": "Retrieves a list of data via the datamap.\nUse `ehrUid` as a query parameter to scope results to a specific EHR.\n\nExample: `/extra/v1/datamap/Rapportage?ehrUid=9f7f3e7a-1111-4b2e-8d7c-222222222222`\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/orderBy"
+          },
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "rapportage_list": {
+                    "summary": "Rapportage list (sample)",
+                    "value": {
+                      "data": [
+                        {
+                          "vuid": "<redacted>",
+                          "episode_uid": "<redacted>",
+                          "episode_id": "E0100016",
+                          "episode_status": "active",
+                          "episode_start": "2025-12-04 15:46:53",
+                          "episode_end": "9999-12-31 23:59:59",
+                          "uid": "<redacted>",
+                          "version_object_id": 325,
+                          "version_tree_id": 4,
+                          "artefact_id": 240,
+                          "trunk_lifecycle_state": "complete",
+                          "Datum en Tijd": "2025-12-10T12:02:00+01:00",
+                          "Zorgverlener": "Code24 Medewerker",
+                          "Zorgverlener_uid": "<redacted>",
+                          "Type Contact": {
+                            "code": "at0021",
+                            "value": "Face to face"
+                          },
+                          "Rapportage": "Example report text..."
+                        },
+                        {
+                          "vuid": "<redacted>",
+                          "episode_uid": "<redacted>",
+                          "episode_id": "E0100016",
+                          "episode_status": "active",
+                          "episode_start": "2025-12-04 15:46:53",
+                          "episode_end": "9999-12-31 23:59:59",
+                          "uid": "<redacted>",
+                          "version_object_id": 326,
+                          "version_tree_id": 2,
+                          "artefact_id": 240,
+                          "trunk_lifecycle_state": "complete",
+                          "Datum en Tijd": "2025-12-10T12:02:00+01:00",
+                          "Zorgverlener": "Code24 Medewerker",
+                          "Zorgverlener_uid": "<redacted>",
+                          "Type Contact": {
+                            "code": "at0022",
+                            "value": "Ear to ear"
+                          },
+                          "Rapportage": "Example report text..."
+                        }
+                      ],
+                      "totalCount": 5
+                    }
+                  },
+                  "agent_overview": {
+                    "summary": "Agent overview (sample)",
+                    "value": {
+                      "data": [
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "HL7",
+                          "version_object_id": 19,
+                          "version_tree_id": 1,
+                          "id": "hl7agent"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "FHIR",
+                          "version_object_id": 20,
+                          "version_tree_id": 1,
+                          "id": "fhir"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "Systeem",
+                          "version_object_id": 21,
+                          "version_tree_id": 1,
+                          "id": "system"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "Client360",
+                          "version_object_id": 22,
+                          "version_tree_id": 1,
+                          "id": "client360"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "Automated tester",
+                          "version_object_id": 23,
+                          "version_tree_id": 1,
+                          "id": "automated_tester"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "Cadasto client cadasto-fb2eaa45-052f-4292-a501-9f3b6bdf1d89",
+                          "version_object_id": 71,
+                          "version_tree_id": 1,
+                          "id": "cadasto-fb2eaa45-052f-4292-a501-9f3b6bdf1d89"
+                        },
+                        {
+                          "uid": "<redacted>",
+                          "vuid": "<redacted>",
+                          "full_name": "Cadasto client cadasto-805bf4cb-2166-4e8a-b31b-cfc5c2c45bdf",
+                          "version_object_id": 72,
+                          "version_tree_id": 1,
+                          "id": "cadasto-805bf4cb-2166-4e8a-b31b-cfc5c2c45bdf"
+                        }
+                      ],
+                      "totalCount": 7
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Create datamap data",
+        "description": "Creates new data according to the datamap (JSON body).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "uid": "<redacted>",
+                    "zorgpad_omschrijving": "test 2",
+                    "zorgpad_code": "test 3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "data": {
+                        "vuid": "<redacted>",
+                        "uid": "<redacted>",
+                        "version_object_id": 329,
+                        "version_tree_id": 2,
+                        "artefact_id": 135,
+                        "trunk_lifecycle_state": "complete",
+                        "beslisboom_context": [],
+                        "zorgpad_omschrijving": "test 2",
+                        "zorgpad_code": "test 3",
+                        "zorgmodules": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/datamap/{datamapName}/{uidBasedId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/datamapName"
+        },
+        {
+          "$ref": "#/components/parameters/uidBasedId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Get datamap data (by UID)",
+        "description": "Retrieves a single data item by UID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "data": {
+                        "vuid": "<redacted>",
+                        "uid": "<redacted>",
+                        "version_object_id": 329,
+                        "version_tree_id": 2,
+                        "artefact_id": 135,
+                        "trunk_lifecycle_state": "complete",
+                        "beslisboom_context": [],
+                        "zorgpad_omschrijving": "test 2",
+                        "zorgpad_code": "test 3",
+                        "zorgmodules": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Update datamap data (by UID)",
+        "description": "Updates a single data item by UID (JSON body).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Delete datamap data (by UID)",
+        "description": "Deletes a single data item by UID.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "Datamap Query"
+        ],
+        "summary": "Check datamap data exists (by UID)",
+        "description": "Checks whether a single data item with the given UID exists.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ehrUid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exists"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/terminology/code24": {
+      "get": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Get FHIR ValueSet URL",
+        "description": "Returns the FHIR ValueSet URL for the given subset.\nResponds with a 302 redirect and a `Location` header pointing to the FHIR server.\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/subset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "302": {
+            "description": "Found (redirect to FHIR ValueSet)",
+            "headers": {
+              "Location": {
+                "description": "URL of the FHIR ValueSet on the FHIR server.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "501": {
+            "description": "Not implemented"
+          }
+        }
+      }
+    },
+    "/extra/v1/ehr/{ehrUid}/episode": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ehrUidPath"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "List episodes",
+        "description": "Returns episodes that group medical data for the given EHR.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array"
+                },
+                "examples": {
+                  "default": {
+                    "value": [
+                      {
+                        "uid": "<redacted>",
+                        "episodeId": "E0100016",
+                        "active": true,
+                        "startsAt": "2025-12-04T15:46:53+01:00"
+                      },
+                      {
+                        "uid": "<redacted>",
+                        "episodeId": "E0126870",
+                        "active": true,
+                        "startsAt": "2025-12-04T15:46:53+01:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Create episode",
+        "description": "Creates a new episode to group related medical data.\n`urgency` allowed values: `at0012` (Crisis), `at0013` (Spoed), `at0014` (Regulier).\n`careCircuit` is a coded value from terminology subset `care_circuit`.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "name": "Episode name",
+                    "active": true,
+                    "urgency": "at0012",
+                    "careCircuit": "5",
+                    "startsAt": "2025-12-04T15:46:53+01:00",
+                    "endsAt": "2025-12-10T11:30:00+01:00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "uid": "<redacted>",
+                      "episodeId": "E0126870",
+                      "active": true,
+                      "startsAt": "2025-12-04T15:46:53+01:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/ehr/{ehrUid}/episode/{uid}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ehrUidPath"
+        },
+        {
+          "$ref": "#/components/parameters/uid"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Get episode",
+        "description": "Retrieves a single episode, which groups related medical data.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {
+                      "uid": "<redacted>",
+                      "episodeId": "E0100016",
+                      "active": true,
+                      "startsAt": "2025-12-04T15:46:53+01:00"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Update episode",
+        "description": "Updates an episode that groups related medical data.\n`urgency` allowed values: `at0012` (Crisis), `at0013` (Spoed), `at0014` (Regulier).\n`careCircuit` is a coded value from terminology subset `care_circuit`.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "name": "Updated episode name",
+                    "active": false,
+                    "urgency": "at0012",
+                    "careCircuit": "5",
+                    "startsAt": "2025-12-04T15:46:53+01:00",
+                    "endsAt": "2025-12-12T12:00:00+01:00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Delete episode",
+        "description": "Deletes an episode by UID.",
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/ehr/{ehrUid}/episode/{uid}/activate": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ehrUidPath"
+        },
+        {
+          "$ref": "#/components/parameters/uid"
+        }
+      ],
+      "put": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Activate episode",
+        "description": "Sets the episode status to active.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {}
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/ehr/{ehrUid}/episode/{uid}/deactivate": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ehrUidPath"
+        },
+        {
+          "$ref": "#/components/parameters/uid"
+        }
+      ],
+      "put": {
+        "tags": [
+          "Episode"
+        ],
+        "summary": "Deactivate episode",
+        "description": "Sets the episode status to inactive.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "default": {
+                    "value": {}
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/extra/v1/admin/ehr/{ehrUid}/episode/{uid}/destroy": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ehrUidPath"
+        },
+        {
+          "$ref": "#/components/parameters/uid"
+        }
+      ],
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Destroy episode (admin)",
+        "description": "Permanently deletes an episode (admin-only).",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "subset": {
+        "name": "subset",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Subset identifier to resolve to a FHIR ValueSet."
+      },
+      "role": {
+        "name": "role",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "patient",
+            "practitioner"
+          ]
+        },
+        "description": "User role to resolve (patient or practitioner)."
+      },
+      "identifier": {
+        "name": "identifier",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Identifier value to resolve to a user."
+      },
+      "identifierType": {
+        "name": "identifierType",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Identifier type. Use `partyUid` when providing a UUID."
+      },
+      "datamapName": {
+        "name": "datamapName",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "uidBasedId": {
+        "name": "uidBasedId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "uid": {
+        "name": "uid",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ehrUidPath": {
+        "name": "ehrUid",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ehrUid": {
+        "name": "ehrUid",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "orderBy": {
+        "name": "order_by",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "x-ext-urls": {}
+}

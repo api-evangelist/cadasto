@@ -1,0 +1,143 @@
+generated: '2026-09-02'
+method: derived
+source: >-
+  info.version and info.x-status in the eight published OpenAPI documents (openapi/*.json), the
+  template-versioning section of https://docs.cadasto.io/docs/faq, the version addressing rules
+  in https://docs.cadasto.io/docs/quick-start, the retirement notice in the README of
+  https://github.com/Cadasto/openehr-server-mcp, GitHub release history across the Cadasto org,
+  and probes for a status page and a changelog on 2026-09-02.
+description: >-
+  Cadasto publishes NO API versioning policy, NO deprecation policy, NO Sunset/Deprecation header
+  contract, NO SLA and NO status page. What it does publish is unusually granular versioning of
+  the DATA: every openEHR object is versioned, every template version is separately addressable,
+  and deletes are logical so history survives. The lifecycle signal that exists is at the
+  artefact level, not the API level.
+
+api_versioning:
+  scheme: path segment
+  pattern: /openehr/v1 (EHR API) and /v1 (Query, Definition, Demographic, Admin, System); /extra/v1 (Additional API)
+  current: v1
+  header_negotiation: false
+  policy_url: null
+  note: >-
+    Every document declares exactly one major version and no version-selection header. Cadasto
+    has never shipped a v2 of any surface.
+
+document_status:
+  source: info.x-status in each published document
+  documents:
+  - {api: EHR API, version: latest, x_status: STABLE, spec: ehr}
+  - {api: Query API, version: latest, x_status: STABLE, spec: query}
+  - {api: Definition API, version: latest, x_status: STABLE, spec: definition}
+  - {api: System API, version: latest, x_status: STABLE, spec: system}
+  - {api: Demographic API, version: development, x_status: DEVELOPMENT, spec: demographic}
+  - {api: Admin API, version: development, x_status: DEVELOPMENT, spec: admin}
+  - {api: Cadasto Additional API, version: 1.0.0, x_status: null, spec: null}
+  - {api: Cadasto SMART on openEHR, version: 1.0.0, x_status: null, spec: null}
+  finding: >-
+    Two of the six openEHR documents — Demographic (42 operations) and Admin (5 operations,
+    including delete-all-EHRs) — carry info.version "development" and x-status DEVELOPMENT. That
+    is 47 of 126 operations, 37% of the surface, published as not-yet-stable. Cadasto's own
+    conformance statement nonetheless lists both as "Fully supported", so the contract and the
+    conformance statement disagree about their maturity.
+
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations_in_spec: 0
+  note: >-
+    No operation anywhere in the eight documents carries `deprecated: true`, and no Sunset
+    (RFC 8594) or Deprecation header is documented. There is therefore no contracted way for a
+    client to learn that an operation is going away.
+
+not_implemented_surface:
+  count: 8
+  meaning: >-
+    Eight operations are declared in the contract but return 501 "This endpoint is not
+    implemented." Five are in the Definition API. These are the closest thing to a published
+    capability boundary; they are not deprecations.
+  detail: errors/cadasto-problem-types.yml
+
+data_versioning:
+  published: true
+  openehr_object_versioning:
+    addressing: >-
+      versioned_object_uid always resolves to the latest version; version_uid
+      ({object_id}::{system_id}::{version_tree_id}) resolves to a specific one.
+    concurrency: RFC 7232 If-Match on updates; 412 Precondition Failed on a lost update.
+    deletes: >-
+      "Deletions are logical — the data is marked as deleted but remains in the version history
+      for audit purposes."
+    revision_history: >-
+      versioned_composition_revision_history and versioned_ehr_status_revision_history expose the
+      full audit trail.
+    source: https://docs.cadasto.io/docs/quick-start
+  template_versioning:
+    scheme: '{template_id}::{uid}'
+    example: Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747
+    behaviour: >-
+      Uploading a template that shares a template_id with an existing one does NOT replace it;
+      both versions remain available and existing compositions stay valid against the version
+      they were committed with.
+    source: https://docs.cadasto.io/docs/faq
+
+retirements:
+- component: openehr-server-mcp (openEHR MCP Server)
+  status: retired
+  announced: in-repo README tombstone
+  date_observed: '2026-09-02'
+  last_push: '2026-08-03'
+  statement: >-
+    "Status: retired. This repository is no longer maintained. The code is outdated and should
+    not be used for new work. Issues and pull requests are not monitored."
+  impact: >-
+    This was the only Cadasto component that exposed openEHR REST operations as MCP tools. Its
+    retirement takes agent reach into the Cadasto CDR from 30 operations to zero. See
+    mcp/cadasto-tool-crosswalk.yml.
+  url: https://github.com/Cadasto/openehr-server-mcp
+
+roadmap_commitments:
+- item: FHIR R4 / R5 support in the FHIR Facade
+  stated_target: 2026 Q2
+  source: openEHR conformance statement, June 2026
+  status_2026_09_02: >-
+    Target date has passed. No public statement updating it was found on cadasto.com,
+    docs.cadasto.io or the GitHub org.
+- item: Independent third-party openEHR conformance audit
+  stated_target: none given
+  source: openEHR conformance statement, June 2026 ("currently working with a third-party partner")
+- item: ADL 2 / AOM 2
+  stated_target: explicitly none
+  source: conformance statement — "no current plans to add support for this"
+
+release_cadence:
+  source: GitHub releases across the Cadasto org, read 2026-09-02
+  repositories:
+  - {repo: openehr-sdk-go, latest: v0.24.0, published: '2026-08-30', releases: 24, note: pre-1.0, active}
+  - {repo: openehr-assistant-mcp, latest: '0.20.0', published: '2026-07-30', note: pre-release per README}
+  - {repo: openehr-assistant-plugin, latest: v0.9.2, published: '2026-08-25'}
+  - {repo: plugin-marketplace, latest: v1.6.0, published: '2026-08-25'}
+  - {repo: openehr-bmm, latest: '0.3.0', published: '2026-05-12'}
+  - {repo: openehr-server-mcp, latest: null, note: no release ever cut; retired}
+
+status_page:
+  url: null
+  probed:
+  - {url: 'https://status.cadasto.com/', status: 'no DNS resolution'}
+  - {url: 'https://status.cadasto.io/', status: 'no DNS resolution'}
+  note: >-
+    No status page exists on any conventional host. The only availability surface Cadasto
+    publishes is the three Kubernetes-style probes in the Additional API —
+    GET /extra/health/startup, /extra/health/live, /extra/health/ready — which are per-tenant and
+    require the tenant host.
+
+sla:
+  published: false
+
+changelog:
+  platform_changelog: null
+  probed:
+  - {url: 'https://docs.cadasto.io/changelog', status: 404}
+  - {url: 'https://docs.cadasto.io/docs/changelog', status: 404}
+  detail: changelog/cadasto-changelog.yml

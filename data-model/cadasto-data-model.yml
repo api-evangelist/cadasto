@@ -1,0 +1,208 @@
+generated: '2026-09-02'
+method: derived
+source: >-
+  Derived from components.schemas and the path structure of the eight OpenAPI documents Cadasto
+  publishes (openapi/*.json — 108 schemas in the EHR API, 105 in the Demographic API), and from
+  https://docs.cadasto.io/docs/guides/openehr, /docs/quick-start, /docs/guides/itemtag and
+  /docs/guides/cadasto-demographic-link.
+description: >-
+  Cadasto does not define its own entity model. It implements the openEHR Reference Model 1.1.0,
+  so the entity graph below is the openEHR RM as Cadasto exposes it over REST, plus the four
+  Cadasto-specific entities that exist only in the Additional API (Datamap definition, Datamap
+  data, Episode, and the EHR-to-PERSON link). Identifiers are openEHR UIDs, not vendor-prefixed
+  ids — a portability property, not an omission.
+
+identifier_scheme:
+  ehr_id: UUID (HIER_OBJECT_ID)
+  versioned_object_uid: UUID — always resolves to the latest version of a versioned object
+  version_uid: '{object_id}::{system_id}::{version_tree_id}, e.g. 8849182c-...::cadasto.io::1'
+  system_id: 'the CDR''s own identity, e.g. {"value": "cadasto.io"}'
+  template_version: '{template_id}::{uid}, e.g. Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747'
+  archetype_id: 'openEHR archetype id, e.g. openEHR-EHR-COMPOSITION.encounter.v1'
+  note: >-
+    No id carries a Cadasto-specific prefix. Every identifier is an openEHR-standard identifier,
+    which is what makes an AQL query written against Cadasto portable to another conformant CDR.
+
+entities:
+- name: EHR
+  api: EHR API
+  description: The top-level container for one subject's clinical record.
+  operations: [ehr_create, ehr_create_with_id, ehr_get_by_id, ehr_get_by_subject]
+  relationships:
+  - {kind: has_one, target: EHR_STATUS, via: ehr_status}
+  - {kind: has_one, target: DIRECTORY, via: directory, note: auto-created with the EHR}
+  - {kind: has_many, target: COMPOSITION, via: 'ehr/{ehr_id}/composition'}
+  - {kind: has_many, target: CONTRIBUTION, via: 'ehr/{ehr_id}/contribution'}
+  - {kind: has_many, target: ITEM_TAG, via: 'ehr/{ehr_id}/tags'}
+  - {kind: has_many, target: Episode, via: 'extra/v1/ehr/{ehrUid}/episode', note: Cadasto-specific}
+  - {kind: belongs_to, target: PERSON, via: cadasto-person-uid request header, note: 'Cadasto-specific, append-only'}
+
+- name: EHR_STATUS
+  api: EHR API
+  description: >-
+    Versioned status object holding the subject PARTY_SELF reference and the is_queryable /
+    is_modifiable flags.
+  operations: [ehr_status_get_at_time, ehr_status_get_by_version_id, ehr_status_update, versioned_ehr_status_get, versioned_ehr_status_revision_history]
+  relationships:
+  - {kind: belongs_to, target: EHR, via: ehr_id}
+  - {kind: has_many, target: ITEM_TAG, via: 'ehr_status/{uid_based_id}/tags'}
+  - {kind: has_one, target: VERSIONED_EHR_STATUS, via: versioned_ehr_status}
+
+- name: COMPOSITION
+  api: EHR API
+  description: >-
+    A versioned clinical document committed to an EHR and validated against the operational
+    template named by its archetype_node_id. The central write entity of the platform.
+  operations: [composition_create, composition_get, composition_update, composition_delete, versioned_composition_get, versioned_composition_revision_history, versioned_composition_version_get_at_time, versioned_composition_version_get_by_id]
+  relationships:
+  - {kind: belongs_to, target: EHR, via: ehr_id}
+  - {kind: belongs_to, target: TEMPLATE, via: archetype_node_id}
+  - {kind: has_many, target: ITEM_TAG, via: 'composition/{uid_based_id}/tags'}
+  - {kind: has_many, target: 'CONTENT_ITEM (OBSERVATION / EVALUATION / INSTRUCTION / ACTION / ADMIN_ENTRY / SECTION)', via: content}
+  - {kind: belongs_to, target: CONTRIBUTION, via: 'the contribution that committed this version'}
+  - {kind: has_one, target: EVENT_CONTEXT, via: context}
+
+- name: DIRECTORY (FOLDER)
+  api: EHR API
+  description: Hierarchical folder structure organizing compositions inside an EHR.
+  operations: [directory_create, directory_update, directory_delete, directory_get_at_time, directory_get_by_version_id]
+  relationships:
+  - {kind: belongs_to, target: EHR, via: ehr_id}
+  - {kind: has_many, target: FOLDER, via: folders, note: self-referential tree}
+  - {kind: has_many, target: COMPOSITION, via: items}
+
+- name: CONTRIBUTION
+  api: EHR API and Demographic API
+  description: >-
+    The atomic commit unit — a set of versioned-object changes with shared AUDIT_DETAILS. The
+    transaction primitive of the platform.
+  operations: [contribution_create, contribution_get]
+  relationships:
+  - {kind: belongs_to, target: EHR, via: ehr_id}
+  - {kind: has_many, target: 'ORIGINAL_VERSION (of COMPOSITION / EHR_STATUS / FOLDER / PARTY)', via: versions}
+  - {kind: has_one, target: AUDIT_DETAILS, via: audit}
+
+- name: ITEM_TAG
+  api: EHR API and Demographic API
+  description: >-
+    Arbitrary key/value annotation attached to a COMPOSITION, an EHR_STATUS, or any demographic
+    party. Distinct schema per owner type (ItemTagOfComposition, ItemTagOfEhrStatus,
+    ItemTagOfPerson, ItemTagOfOrganisation, ItemTagOfRole, ItemTagOfAgent, ItemTagOfGroup).
+  relationships:
+  - {kind: belongs_to, target: 'COMPOSITION | EHR_STATUS | PERSON | ORGANISATION | ROLE | AGENT | GROUP', via: owner_id}
+
+- name: PERSON
+  api: Demographic API
+  description: A demographic party representing an individual. Versioned, separate from clinical data.
+  operations: [person_create, person_get, person_update, person_delete, person_tags_get, person_tags_update, person_tags_delete]
+  relationships:
+  - {kind: has_many, target: PARTY_IDENTITY, via: identities}
+  - {kind: has_many, target: CONTACT, via: contacts}
+  - {kind: has_many, target: PARTY_RELATIONSHIP, via: relationships}
+  - {kind: has_many, target: ROLE, via: roles}
+  - {kind: has_one, target: EHR, via: 'cadasto-person-uid (Cadasto-specific, append-only link)'}
+
+- name: ORGANISATION
+  api: Demographic API
+  operations: [organisation_create, organisation_get, organisation_update, organisation_delete]
+  relationships:
+  - {kind: has_many, target: PARTY_IDENTITY, via: identities}
+  - {kind: has_many, target: PARTY_RELATIONSHIP, via: relationships}
+
+- name: ROLE
+  api: Demographic API
+  description: A capability-bearing role a party performs, linking an ACTOR to a performing context.
+  operations: [role_create, role_get, role_update, role_delete]
+  relationships:
+  - {kind: belongs_to, target: 'PERSON | ORGANISATION | AGENT | GROUP', via: performer}
+  - {kind: has_many, target: CAPABILITY, via: capabilities}
+
+- name: AGENT
+  api: Demographic API
+  operations: [agent_create, agent_get, agent_update, agent_delete]
+
+- name: GROUP
+  api: Demographic API
+  operations: [group_create, group_get, group_update, group_delete]
+
+- name: VERSIONED_PARTY
+  api: Demographic API
+  description: The version container for any demographic party, with its full revision history.
+  operations: [versioned_party_get, versioned_party_revision_history, versioned_party_version_get_at_time, versioned_party_version_get_by_id]
+  relationships:
+  - {kind: has_many, target: 'ORIGINAL_VERSION of PERSON | ORGANISATION | ROLE | AGENT | GROUP', via: versions}
+
+- name: TEMPLATE (Operational Template, OPT)
+  api: Definition API
+  description: >-
+    An ADL 1.4 or ADL 2 operational template constraining the archetypes a COMPOSITION may use.
+    Multiple versions of one template_id coexist.
+  operations: ['definition_template_adl1.4_upload', 'definition_template_adl1.4_list', 'definition_template_adl1.4_get', 'definition_template_adl1.4_example_get', definition_template_adl2_upload, definition_template_adl2_list, definition_template_adl2_get, definition_template_adl2_version_get]
+  relationships:
+  - {kind: has_many, target: COMPOSITION, via: 'archetype_node_id — every composition validates against one template'}
+  - {kind: has_many, target: ARCHETYPE, via: 'the archetypes the template constrains'}
+
+- name: STORED_QUERY
+  api: Definition API
+  description: A named, versioned AQL statement stored on the server and executable by qualified name.
+  operations: [definition_query_list, 'definition_query_store.yaml', 'definition_query_version_store.yaml', definition_query_version_get]
+  relationships:
+  - {kind: has_many, target: RESULT_SET, via: 'execution via the Query API'}
+
+- name: RESULT_SET
+  api: Query API
+  description: The response shape of an AQL execution — columns[] metadata plus rows[] of values.
+  operations: [query_execute_adhoc_query, query_execute_adhoc_query_body, query_execute_stored_query, query_execute_stored_query_body, query_execute_stored_query_version, query_execute_stored_query_version_body]
+
+- name: DATAMAP_DEFINITION
+  api: Cadasto Additional API
+  cadasto_specific: true
+  description: >-
+    A named mapping from simple JSON aliases to openEHR paths — Cadasto's substitute for the
+    openEHR Simplified Data Template it does not implement. Carries its own JSON Schema.
+  operations: ['GET /extra/v1/definition/datamap', 'GET /extra/v1/definition/datamap/{datamapName}', 'PUT /extra/v1/definition/datamap/{datamapName}', 'DELETE /extra/v1/definition/datamap/{datamapName}', 'GET /extra/v1/definition/datamap/{datamapName}/schema']
+  relationships:
+  - {kind: has_many, target: DATAMAP_DATA, via: datamapName}
+  - {kind: belongs_to, target: TEMPLATE, via: 'the openEHR paths the map targets'}
+
+- name: DATAMAP_DATA
+  api: Cadasto Additional API
+  cadasto_specific: true
+  description: A simplified JSON instance read or written through a datamap definition.
+  operations: ['POST /extra/v1/datamap', 'GET /extra/v1/datamap/{datamapName}', 'POST /extra/v1/datamap/{datamapName}', 'GET /extra/v1/datamap/{datamapName}/{uidBasedId}', 'PUT /extra/v1/datamap/{datamapName}/{uidBasedId}', 'DELETE /extra/v1/datamap/{datamapName}/{uidBasedId}']
+  relationships:
+  - {kind: belongs_to, target: DATAMAP_DEFINITION, via: datamapName}
+  - {kind: belongs_to, target: COMPOSITION, via: 'the underlying openEHR objects the alias paths resolve to'}
+
+- name: EPISODE
+  api: Cadasto Additional API
+  cadasto_specific: true
+  description: >-
+    An episode of care attached to an EHR, with an explicit activate / deactivate lifecycle and an
+    admin-only destroy.
+  operations: ['GET /extra/v1/ehr/{ehrUid}/episode', 'POST /extra/v1/ehr/{ehrUid}/episode', 'GET /extra/v1/ehr/{ehrUid}/episode/{uid}', 'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}', 'DELETE /extra/v1/ehr/{ehrUid}/episode/{uid}', 'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}/activate', 'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}/deactivate', 'PUT /extra/v1/admin/ehr/{ehrUid}/episode/{uid}/destroy']
+  relationships:
+  - {kind: belongs_to, target: EHR, via: ehrUid}
+
+- name: USER
+  api: Cadasto Additional API
+  cadasto_specific: true
+  description: The authenticated caller's identity and caseload (the set of subjects they may act on).
+  operations: ['GET /extra/v1/user/info', 'GET /extra/v1/user/caseload']
+
+data_type_layer:
+  note: >-
+    Both the EHR and Demographic documents carry the full openEHR data-types library as schemas —
+    DV_TEXT, DV_CODED_TEXT, DV_QUANTITY, DV_DATE_TIME, DV_DURATION, DV_IDENTIFIER, DV_MULTIMEDIA,
+    DV_INTERVAL, CODE_PHRASE, TERM_MAPPING and the ITEM_STRUCTURE family (ITEM_TREE, ITEM_LIST,
+    ITEM_TABLE, ITEM_SINGLE, CLUSTER, ELEMENT). These are RM types, identical across every
+    conformant openEHR CDR, and are not enumerated individually here.
+  schema_counts:
+    ehr_api: 108
+    demographic_api: 105
+    definition_api: 'template + stored-query metadata schemas'
+    extra_api: 0
+  gap: >-
+    openapi/cadasto-extra-api-openapi.json declares ZERO component schemas for its 27 operations —
+    Datamap definitions, Datamap data and Episodes have no published shape at all. The one
+    Cadasto-specific part of the model is the one part with no machine-readable data model.

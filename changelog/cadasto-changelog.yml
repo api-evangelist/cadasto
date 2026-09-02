@@ -1,0 +1,57 @@
+generated: '2026-09-02'
+method: derived
+source: >-
+  GitHub release history across the github.com/Cadasto organisation, read 2026-09-02. Probes for
+  a platform changelog: https://docs.cadasto.io/changelog -> 404,
+  https://docs.cadasto.io/docs/changelog -> 404; the docs sitemap
+  (https://docs.cadasto.io/sitemap.xml) lists no changelog page and
+  https://www.cadasto.com/sitemap.xml lists none either.
+platform_changelog:
+  published: false
+  url: null
+  note: >-
+    Cadasto publishes NO changelog for the Cadasto CDR or its APIs. There is no release-notes
+    page, no dated entries, and no version history for the platform on any anonymously reachable
+    host. A tenant learns what changed from its reseller or from Cadasto directly.
+scheme: semantic versioning, per open-source repository (not per platform release)
+open_source_changelogs:
+  note: >-
+    Every first-party repository maintains a CHANGELOG.md and cuts GitHub releases. These track
+    the SDK, MCP servers and AI plugins — not the CDR.
+  repositories:
+  - repo: openehr-sdk-go
+    changelog: https://github.com/Cadasto/openehr-sdk-go/blob/main/CHANGELOG.md
+    current_version: v0.24.0
+    released: '2026-08-30'
+    release_count: 24
+    note: Most active repository in the org; still pre-1.0.
+  - repo: openehr-assistant-mcp
+    changelog: https://github.com/Cadasto/openehr-assistant-mcp/blob/main/CHANGELOG.md
+    current_version: '0.20.0'
+    released: '2026-07-30'
+    note: >-
+      Version confirmed against the live hosted endpoint, whose initialize response reports
+      serverInfo.version 0.20.0 — the deployed server matches the tagged release.
+  - repo: openehr-assistant-plugin
+    changelog: https://github.com/Cadasto/openehr-assistant-plugin/blob/main/CHANGELOG.md
+    current_version: v0.9.2
+    released: '2026-08-25'
+  - repo: plugin-marketplace
+    changelog: https://github.com/Cadasto/plugin-marketplace/blob/main/CHANGELOG.md
+    current_version: v1.6.0
+    released: '2026-08-25'
+  - repo: openehr-bmm
+    changelog: https://github.com/Cadasto/openehr-bmm/blob/main/CHANGELOG.md
+    current_version: '0.3.0'
+    released: '2026-05-12'
+  - repo: openehr-server-mcp
+    changelog: https://github.com/Cadasto/openehr-server-mcp/blob/main/CHANGELOG.md
+    current_version: null
+    released: null
+    note: Retired; no release was ever cut.
+recent_entries: []
+gaps:
+  - No platform changelog, so there is no dated record of when an API operation, a conformance
+    claim or the Datamap format last changed.
+  - The published OpenAPI documents carry info.version "latest" or "development" rather than a
+    dated or numbered release, so a consumer cannot diff two versions of the contract.

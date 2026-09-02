@@ -1,0 +1,101 @@
+generated: '2026-09-02'
+method: probed
+description: >-
+  Results of probing the /.well-known/ discovery surface on every Cadasto host reachable without
+  credentials: the marketing/apex host (www.cadasto.com), the docs host (docs.cadasto.io), the
+  bare cadasto.io apex, and the hosted MCP endpoint host
+  (openehr-assistant-mcp.apps.cadasto.com). Status is the HTTP code observed at fetch time on
+  2026-09-02. Only a real, correctly-typed payload was saved.
+  NOT PROBED: the runtime API and auth hosts are per-tenant and templated —
+  https://<mycompany>.api.prod.cadasto.io and https://<mycompany>.auth.prod.cadasto.io — so there
+  is no anonymous host to resolve. The documented SMART discovery document
+  (/.well-known/smart-configuration on the tenant auth host) is therefore recorded in
+  authentication/cadasto-authentication.yml from the docs, not probed here.
+  The example server host named in the OpenAPI server variable default,
+  cataniamc.prod.cadasto.com, does not resolve in public DNS (NXDOMAIN).
+hosts:
+  - host: https://www.cadasto.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        type: text/plain
+        file: cadasto-security.txt
+      - path: /.well-known/openid-configuration
+        status: 403
+      - path: /.well-known/oauth-authorization-server
+        status: 403
+      - path: /.well-known/oauth-protected-resource
+        status: 403
+      - path: /.well-known/api-catalog
+        status: 403
+      - path: /.well-known/ai-plugin.json
+        status: 403
+      - path: /.well-known/agent-card.json
+        status: 403
+      - path: /.well-known/agent.json
+        status: 403
+    note: >-
+      security.txt is served and carries a real Contact and Expires. Every other /.well-known/
+      path returns a blanket nginx 403 (not a 404) — an edge rule on the WordPress host, not a
+      served document. Treated as a miss.
+  - host: https://cadasto.io
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        type: text/plain
+        file: cadasto-security.txt
+      - path: /.well-known/openid-configuration
+        status: 403
+      - path: /.well-known/oauth-authorization-server
+        status: 403
+      - path: /.well-known/oauth-protected-resource
+        status: 403
+      - path: /.well-known/api-catalog
+        status: 403
+      - path: /.well-known/ai-plugin.json
+        status: 403
+      - path: /.well-known/agent-card.json
+        status: 403
+      - path: /.well-known/agent.json
+        status: 403
+    note: Serves the identical security.txt as www.cadasto.com; same 403 edge rule elsewhere.
+  - host: https://docs.cadasto.io
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+    note: >-
+      Every path returns the SPA 404 shell of the Scalar-built docs site. No document served.
+  - host: https://openehr-assistant-mcp.apps.cadasto.com
+    documents:
+      - path: /.well-known/oauth-authorization-server
+        status: 405
+      - path: /.well-known/oauth-protected-resource
+        status: 405
+      - path: /.well-known/agent-card.json
+        status: 405
+      - path: /.well-known/agent.json
+        status: 405
+      - path: /.well-known/security.txt
+        status: 405
+      - path: /.well-known/mcp.json
+        status: 405
+    note: >-
+      The host is a bare MCP endpoint behind Caddy — every GET returns a JSON-RPC
+      {"error":{"code":-32600,"message":"Method Not Allowed"}} with HTTP 405. No discovery
+      documents are served, and none are needed: the server accepts anonymous MCP calls, so
+      there is no OAuth metadata to publish (confirmed by a successful unauthenticated
+      initialize + tools/list on 2026-09-02).

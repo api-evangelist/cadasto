@@ -1,0 +1,108 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://docs.cadasto.io/docs/guides/authentication (OAuth 2.0 Client Credentials guide),
+  https://docs.cadasto.io/docs/faq (credential issuance and environment isolation),
+  https://docs.cadasto.io/docs/quick-start (Authorization header usage), and the
+  securitySchemes block of openapi/cadasto-extra-api-openapi.json.
+  Upgraded from the derived profile: the six openEHR ITS-REST documents Cadasto publishes carry
+  an EMPTY components.securitySchemes and `security: []`, because they are the standard's own
+  documents. The real auth contract is documented in prose, not in those specs.
+docs: https://docs.cadasto.io/docs/guides/authentication
+
+summary:
+  primary: OAuth 2.0 Client Credentials (RFC 6749 section 4.4), Bearer token (RFC 6750)
+  interactive: SMART on openEHR / authorization code with PKCE (redirect URIs issued on request)
+  types: [oauth2, http]
+  self_service: false
+  note: >-
+    Credentials are not self-service. client_id and client_secret are issued by Cadasto after a
+    tenant environment is provisioned, per environment (development, acceptation, production),
+    on request via the template published in the docs FAQ.
+
+service_discovery:
+  document: /.well-known/smart-configuration
+  host: https://{mycompany}.auth.prod.cadasto.io
+  method: documented
+  probed: false
+  probe_note: >-
+    NOT PROBED — the auth host is per-tenant and templated; there is no anonymous host to
+    resolve. Recorded from the docs, which show the response shape verbatim.
+  advertises:
+    - authorization_endpoint
+    - token_endpoint
+    - grant_types_supported
+    - scopes_supported
+    - (may include API service URLs, e.g. org.openehr.rest, client auth methods, SMART capabilities)
+
+schemes:
+- name: oauth2_client_credentials
+  type: oauth2
+  flow: clientCredentials
+  token_endpoint: https://{mycompany}.auth.prod.cadasto.io/oauth/token
+  authorization_endpoint: https://{mycompany}.auth.prod.cadasto.io/oauth/authorize
+  client_authentication: HTTP Basic (preferred) or client_id/client_secret in the form body (documented as less preferred)
+  required_parameters:
+    grant_type: client_credentials
+    audience: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  optional_parameters:
+    scope: space-separated, e.g. "api.read api.write"
+  token_type: Bearer
+  token_lifetime_seconds: 3600
+  refresh_token: false
+  refresh_strategy: >-
+    No refresh_token is issued. The docs instruct clients to read expires_in and request a new
+    token before expiry with a safety margin.
+  usage: Authorization:...Bearer <access_token> on every API request
+  errors:
+    format: RFC 6749 section 5.2 ({"error", "error_description"})
+    codes:
+      invalid_client: Wrong client_id or client_secret
+      invalid_grant: Incorrect grant_type
+      invalid_request: Invalid client credentials or refresh token
+      invalid_scope: Requested scope not allowed for this client
+  sources:
+  - https://docs.cadasto.io/docs/guides/authentication
+
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  applies_to: Cadasto Additional API (the only published document that declares a securityScheme)
+  sources:
+  - openapi/cadasto-extra-api-openapi.json
+
+- name: smart_on_openehr
+  type: oauth2
+  flow: authorizationCode
+  pkce: required for interactive flows
+  applies_to: Third-party app launch against a Cadasto tenant
+  detail: >-
+    Cadasto declares SMART-on-openEHR 1.1.0 "Fully supported" in its published conformance
+    statement, and publishes a pointer OpenAPI document at
+    https://docs.cadasto.io/smart-on-openehr rather than restating the specification. Redirect
+    URIs and CORS origins are registered at credential-issuance time (docs FAQ).
+  sources:
+  - https://docs.cadasto.io/smart-on-openehr
+  - https://www.cadasto.com/wp-content/uploads/2026/06/Cadasto-CDR-openEHR-conformance-statement-June-2026.pdf
+
+environments:
+  names: [development, acceptation, production]
+  isolation: >-
+    Credentials are issued and isolated per environment; the docs FAQ states each set must be
+    treated independently.
+
+credential_handling_guidance:
+  published: true
+  points:
+    - Never check client_secret into source control; use a secret manager, environment variables or vault.
+    - Rotate immediately on compromise.
+    - Per-environment isolation is mandatory.
+  source: https://docs.cadasto.io/docs/faq
+
+gaps:
+  - The six openEHR ITS-REST OpenAPI documents declare no securitySchemes and an empty security
+    array, so a generated client reads them as unauthenticated. Only the Additional API document
+    declares bearerAuth.
+  - No mutualTLS, no API-key scheme, and no OpenID Connect discovery document is published on an
+    anonymously reachable host.

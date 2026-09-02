@@ -1,0 +1,198 @@
+generated: '2026-09-02'
+method: probed
+status: published
+source: >-
+  https://github.com/Cadasto/openehr-assistant-mcp (README + docs/install.md) and a live
+  unauthenticated MCP session against https://openehr-assistant-mcp.apps.cadasto.com/ on
+  2026-09-02: initialize -> 200, tools/list -> 200 (12 tools), prompts/list -> 200 (14 prompts),
+  resources/list -> 200 (50 resources), resources/templates/list -> 200 (3 templates).
+  Verbatim payloads saved to mcp/cadasto-mcp-tools.json.
+description: >-
+  Cadasto B.V. publishes two MCP servers. The openEHR ASSISTANT server is live, hosted and
+  anonymous — it serves the openEHR knowledge surface (CKM archetypes and templates, openEHR
+  terminology, BMM type specifications, curated guides and examples). The openEHR SERVER MCP,
+  which bridged an agent to a live openEHR REST endpoint, is RETIRED by its own README and
+  never cut a release.
+
+deployment:
+  mode: both
+  endpoint: https://openehr-assistant-mcp.apps.cadasto.com/
+  install: docker run --rm -i ghcr.io/cadasto/openehr-assistant-mcp:latest php public/index.php --transport=stdio
+  package: https://github.com/Cadasto/openehr-assistant-mcp
+  auth: none
+  verified: probed
+
+servers:
+  - name: openEHR Assistant
+    slug: openehr-assistant-mcp
+    status: live
+    lifecycle: pre-release
+    version: 0.20.0
+    protocol_version: '2025-03-26'
+    transport: streamable-http
+    url: https://openehr-assistant-mcp.apps.cadasto.com/
+    stdio: docker run --rm -i ghcr.io/cadasto/openehr-assistant-mcp:latest php public/index.php --transport=stdio
+    repository: https://github.com/Cadasto/openehr-assistant-mcp
+    docs: https://cadasto.github.io/openehr-assistant/
+    license: MIT
+    auth: none
+    session: Mcp-Session-Id header issued on initialize
+    capabilities: [logging, completions, prompts, resources (subscribe), tools]
+    counts:
+      tools: 12
+      prompts: 14
+      resources: 50
+      resource_templates: 3
+      completion_providers: 3
+    note: >-
+      This server does NOT talk to a Cadasto CDR tenant. It is a knowledge/authoring surface for
+      the openEHR standard itself — it reads ckm.openehr.org, specifications.openehr.org and
+      bundled guides. No patient data passes through it, which is why it can be exposed
+      anonymously.
+  - name: openEHR MCP Server
+    slug: openehr-server-mcp
+    status: retired
+    version: null
+    transport: [streamable-http, stdio]
+    url: null
+    repository: https://github.com/Cadasto/openehr-server-mcp
+    license: MIT
+    auth: basic / bearer token passed to the backing openEHR REST endpoint
+    counts:
+      tools: 21
+      prompts: 11
+    note: >-
+      README tombstone, verbatim: "Status: retired. This repository is no longer maintained. The
+      code is outdated and should not be used for new work." Also warns "OAuth2 authorization
+      flows are not supported yet... intended for development and testing purposes only." No
+      hosted endpoint was ever published and no GitHub release exists. Its tool list is retained
+      below and in mcp/cadasto-tool-crosswalk.yml because it is the only published mapping from
+      MCP tools onto Cadasto's openEHR REST operations.
+
+tools:
+  - name: ckm_archetype_search
+    server: openehr-assistant-mcp
+    category: ckm
+    required: [keyword]
+    properties: [keyword, maxResults, requireAllSearchWords, rmClass]
+    description: Search and discover candidate openEHR Archetypes in the Clinical Knowledge Manager (CKM).
+  - name: ckm_archetype_get
+    server: openehr-assistant-mcp
+    category: ckm
+    required: [identifier]
+    properties: [identifier, format]
+    description: Retrieve the full definition of an Archetype from CKM, serialized in a specified format.
+  - name: ckm_template_search
+    server: openehr-assistant-mcp
+    category: ckm
+    required: [keyword]
+    properties: [keyword, maxResults, requireAllSearchWords]
+    description: Search for and discover candidate openEHR Templates in CKM matching a given criteria.
+  - name: ckm_template_get
+    server: openehr-assistant-mcp
+    category: ckm
+    required: [identifier]
+    properties: [identifier, format]
+    description: Retrieve the full definition of an openEHR Template (OET or OPT) from CKM by identifier.
+  - name: examples_search
+    server: openehr-assistant-mcp
+    category: examples
+    required: []
+    properties: [query, kind, maxResults, snippetChars]
+    description: Search openEHR example artefacts (AQL queries, FLAT/STRUCTURED JSON payloads, native ADL archetypes).
+  - name: examples_get
+    server: openehr-assistant-mcp
+    category: examples
+    required: []
+    properties: [uri, kind, name]
+    description: Fetch the full content of an openEHR example artefact by canonical URI or by kind and name.
+  - name: guide_search
+    server: openehr-assistant-mcp
+    category: guides
+    required: []
+    properties: [query, category, taskType, maxResults, snippetChars, topCandidates]
+    description: Search openEHR guides metadata and content, returning snippets plus canonical openehr://guides URIs.
+  - name: guide_get
+    server: openehr-assistant-mcp
+    category: guides
+    required: []
+    properties: [uri, category, name]
+    description: Fetch the full content of an openEHR guide by canonical URI or by category and name.
+  - name: guide_adl_idiom_lookup
+    server: openehr-assistant-mcp
+    category: guides
+    required: [pattern]
+    properties: [pattern]
+    description: Look up ADL idiom snippets for a symptom or pattern to prevent generic prompting.
+  - name: terminology_resolve
+    server: openehr-assistant-mcp
+    category: terminology
+    required: [input]
+    properties: [input, groupId]
+    description: Resolve an openEHR Terminology concept ID to its rubric, or find the concept ID for a rubric.
+  - name: type_specification_search
+    server: openehr-assistant-mcp
+    category: specifications
+    required: [namePattern]
+    properties: [namePattern, keyword]
+    description: Search openEHR Type specifications by name pattern with an optional keyword filter.
+  - name: type_specification_get
+    server: openehr-assistant-mcp
+    category: specifications
+    required: [name]
+    properties: [name, component]
+    description: Retrieve an openEHR Type (class) specification as BMM JSON, including attributes and semantics.
+
+retired_server_tools:
+  server: openehr-server-mcp
+  source: https://github.com/Cadasto/openehr-server-mcp README "Available MCP Elements"
+  tools:
+    - {name: template_list, category: definition}
+    - {name: template_get, category: definition}
+    - {name: template_upload, category: definition}
+    - {name: template_example_get, category: definition}
+    - {name: stored_query_upload, category: definition}
+    - {name: stored_query_list, category: definition}
+    - {name: stored_query_get, category: definition}
+    - {name: query_adhoc, category: query}
+    - {name: stored_query_execute, category: query}
+    - {name: ehr_create, category: ehr}
+    - {name: ehr_get, category: ehr}
+    - {name: ehr_status_get, category: ehr}
+    - {name: ehr_contribution_create, category: ehr}
+    - {name: ehr_contribution_get, category: ehr}
+    - {name: composition_create, category: composition}
+    - {name: composition_get, category: composition}
+    - {name: composition_update, category: composition}
+    - {name: composition_delete, category: composition}
+    - {name: composition_revision_history, category: composition}
+
+prompts:
+  server: openehr-assistant-mcp
+  count: 14
+  names: [ckm_explorer, design_or_review_aql, design_or_review_archetype,
+    design_or_review_simplified_format, design_or_review_template, explain_aql,
+    explain_archetype, explain_simplified_format, explain_template, fix_adl_syntax,
+    guide_explorer, terminology_explorer, translate_archetype_language,
+    type_specification_explorer]
+
+resources:
+  server: openehr-assistant-mcp
+  count: 50
+  uri_templates:
+    - openehr://guides/{category}/{name}
+    - openehr://examples/{kind}/{name}
+    - openehr://spec/type/{component}/{name}
+  categories: [aql, archetypes, templates, simplified_formats, specs, howto]
+
+client_configuration:
+  source: https://github.com/Cadasto/openehr-assistant-plugin/blob/main/.mcp.json
+  json: |
+    {
+      "mcpServers": {
+        "openehr-assistant": {
+          "type": "streamable-http",
+          "url": "https://openehr-assistant-mcp.apps.cadasto.com/"
+        }
+      }
+    }

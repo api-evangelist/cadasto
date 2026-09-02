@@ -1,0 +1,32 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  Full-text search of https://docs.cadasto.io/llms-full.txt (74,053 bytes — the complete
+  concatenated documentation corpus Cadasto publishes for machine consumption, fetched
+  2026-09-02) plus the eight OpenAPI documents under openapi/. Search terms "rate limit", "429",
+  "X-RateLimit", "RateLimit-", "Retry-After", "throttle", "quota" — ZERO matches in the docs
+  corpus, and no 429 response declared on any of the 126 operations.
+limit_count: 0
+documented: false
+headers: []
+status_on_exhaustion: not published
+retry_after: not published
+scopes: []
+note: >-
+  Cadasto publishes no rate limits of any kind — no numbers, no windows, no response headers, and
+  no 429 anywhere in the contract. An agent calling a Cadasto tenant has no published runtime
+  signal telling it to back off, and no documented status code to detect exhaustion by. The only
+  throttling-adjacent contract in the whole surface is HTTP 408 Request Timeout, declared on all
+  six Query API operations and nowhere else — the AQL engine is the one component whose execution
+  budget the contract acknowledges. Whether a tenant enforces limits at the gateway is unknown
+  and unverifiable without an issued credential.
+related:
+  timeout:
+    status: 408
+    scope: Query API (all 6 AQL operations)
+    source: openapi/cadasto-query-api-openapi.json
+gaps:
+  - No RateLimit-* or X-RateLimit-* headers documented.
+  - No 429 declared in any published contract.
+  - No Retry-After semantics documented.
+  - No per-key, per-tenant or per-endpoint quota published.

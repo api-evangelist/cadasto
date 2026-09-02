@@ -1,0 +1,75 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://github.com/Cadasto/openehr-assistant-plugin (release v0.9.2, 2026-08-25), directory
+  skills/ — eight Agent Skills authored and published by Cadasto B.V. and saved here VERBATIM.
+  Nothing in this directory was written by API Evangelist.
+description: >-
+  Cadasto ships a packaged Agent Skill suite for openEHR clinical modelling, distributed through
+  its own Claude Code plugin marketplace (github.com/Cadasto/plugin-marketplace, v1.6.0) and
+  wired to Cadasto's hosted MCP endpoint via the plugin's .mcp.json. The skills ground an agent
+  in openEHR artefact authoring — archetypes, templates, compositions, AQL, demographics — not
+  in Cadasto's own REST API, which has no packaged skill.
+license: MIT
+plugin:
+  name: openehr-assistant
+  display_name: openEHR Assistant
+  version: 0.9.2
+  published: '2026-08-25'
+  author: Cadasto B.V.
+  repository: https://github.com/Cadasto/openehr-assistant-plugin
+  marketplace: https://github.com/Cadasto/plugin-marketplace
+  mcp_server: https://openehr-assistant-mcp.apps.cadasto.com/
+  also_ships:
+    subagents: [ckm-scout, clinical-modeler, spec-researcher]
+    commands: [/archetype-impact, /ckm-search, /openehr-explain]
+    cursor_rules: [rules/openehr-context.mdc]
+skills:
+  - name: openehr-assistant
+    file: cadasto-openehr-assistant.md
+    role: awareness and routing layer for general openEHR questions and guide browsing
+  - name: archetype-authoring
+    file: cadasto-archetype-authoring.md
+    role: create, edit, specialize, review, translate and fix-syntax on openEHR archetypes
+  - name: archetype-lint
+    file: cadasto-archetype-lint.md
+    role: apply 24 normative lint rules (ERROR/WARNING/INFO) in STRICT or PERMISSIVE mode
+  - name: template-authoring
+    file: cadasto-template-authoring.md
+    role: OET authoring, constraint review, and the form to template-sketch inverse workflow
+  - name: composition-builder
+    file: cadasto-composition-builder.md
+    role: build, validate and convert compositions across FLAT/STRUCTURED/CANONICAL formats
+  - name: aql-authoring
+    file: cadasto-aql-authoring.md
+    role: write, optimize and review AQL queries over openEHR clinical data
+  - name: demographic-modeling
+    file: cadasto-demographic-modeling.md
+    role: design the PARTY hierarchy, roles, capabilities, relationships and identity patterns
+  - name: semantic-diff
+    file: cadasto-semantic-diff.md
+    role: semantic comparison of two archetypes or templates with a version-bump verdict
+note: >-
+  GAP: none of the eight Cadasto-published skills is grounded in Cadasto's own OpenAPI
+  operationIds. They teach openEHR artefact authoring, not the Cadasto CDR runtime. API
+  Evangelist generated one skill to fill that gap; it is listed separately below and is NOT
+  Cadasto's work.
+
+generated_skills:
+  note: >-
+    Authored by API Evangelist, not by Cadasto. Every operationId in it was grepped from the
+    OpenAPI documents under openapi/; none is invented.
+  skills:
+  - name: cadasto-cdr-clinical-write-flow
+    file: cadasto-cdr-clinical-write-flow.md
+    method: generated
+    author: API Evangelist
+    role: >-
+      End-to-end Cadasto CDR write flow — token, EHR, template, example, composition commit,
+      If-Match update, logical delete, AQL read-back — with the concurrency, idempotency,
+      reversibility and error rules that apply at each step.
+    grounded_in:
+    - openapi/cadasto-ehr-api-openapi.json
+    - openapi/cadasto-definition-api-openapi.json
+    - openapi/cadasto-query-api-openapi.json
+    - https://docs.cadasto.io/docs/quick-start

@@ -1,0 +1,39 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for Cadasto SMART on openEHR (Reference)
+  version: 1.0.0
+extends: openapi/cadasto-smart-on-openehr-openapi.json
+x-provenance:
+  generated: '2026-09-02'
+  method: generated
+  source: >-
+    Enhancements API Evangelist derived from Cadasto's own public documentation while profiling
+    the spec harvested verbatim from https://docs.cadasto.io/smart-on-openehr (openapi.json). The
+    underlying document is NEVER mutated; everything below is additive and reversible.
+actions:
+  - target: $.info
+    description: >-
+      Add the contact and documentation Cadasto publishes on its own site but omits from the
+      served document (info.contact, info.termsOfService and externalDocs are all absent upstream).
+    update:
+      contact:
+        name: Cadasto B.V.
+        url: https://www.cadasto.com/contact/
+        email: info@cadasto.com
+      x-api-evangelist-reference: https://docs.cadasto.io/smart-on-openehr
+      x-api-evangelist-provider: cadasto
+  - target: $
+    description: Attach the API reference page as externalDocs.
+    update:
+      externalDocs:
+        url: https://docs.cadasto.io/smart-on-openehr
+        description: Cadasto API reference for the Cadasto SMART on openEHR (Reference).
+  - target: $.info
+    description: Record the openEHR conformance Cadasto declares for this surface.
+    update:
+      x-domain-standard:
+        name: openEHR
+        body: openEHR International
+        note: Cadasto-specific surface; not part of the openEHR specification.
+        statement: https://www.cadasto.com/wp-content/uploads/2026/06/Cadasto-CDR-openEHR-conformance-statement-June-2026.pdf
+        detail: conformance/cadasto-conformance.yml

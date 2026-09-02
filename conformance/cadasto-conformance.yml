@@ -1,0 +1,248 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  Primary: "Cadasto CDR openEHR conformance statement, June 2026", published by Cadasto at
+  https://www.cadasto.com/wp-content/uploads/2026/06/Cadasto-CDR-openEHR-conformance-statement-June-2026.pdf
+  (HTTP 200, application/pdf, 567,786 bytes, fetched 2026-09-02) and linked from
+  https://www.cadasto.com/resources/#conformance. Secondary: the OpenAPI documents Cadasto serves
+  at https://docs.cadasto.io/<api>/openapi.json (saved under openapi/), the authentication guide
+  at https://docs.cadasto.io/docs/guides/authentication, and a live MCP probe of
+  https://openehr-assistant-mcp.apps.cadasto.com/.
+description: >-
+  Cadasto is one of the few vendors in this catalog that publishes a component-by-component
+  conformance statement naming the specification version for every part of its domain standard,
+  including the parts it deliberately does NOT implement and why. The claims below are quoted
+  from that document; the contract-level evidence is cited alongside each one.
+
+domain_standard:
+  name: openEHR
+  body: openEHR International
+  market: Clinical data repositories / electronic health records
+  declared_in_contract: true
+  evidence:
+    - >-
+      openapi/cadasto-ehr-api-openapi.json — info.x-spec "ehr", info.x-status "STABLE",
+      x-tagGroups naming the openEHR RM resource classes EHR, EHR_STATUS, COMPOSITION,
+      DIRECTORY, CONTRIBUTION, ITEM_TAG, and operationIds in the openEHR ITS-REST naming scheme
+      (ehr_create, composition_create, versioned_composition_revision_history).
+    - >-
+      openapi/cadasto-query-api-openapi.json — info.x-spec "query"; the operation set is the
+      openEHR AQL execution contract (query_execute_adhoc_query, query_execute_stored_query).
+    - >-
+      openapi/cadasto-definition-api-openapi.json — info.x-spec "definition"; ADL1.4 and ADL2
+      tag groups; operationIds definition_template_adl1.4_upload / definition_template_adl2_get.
+    - >-
+      openapi/cadasto-demographic-api-openapi.json — info.x-spec "demographic"; the openEHR
+      demographic PARTY hierarchy (agent, group, organisation, person, role) as first-class paths.
+    - >-
+      openapi/cadasto-system-api-openapi.json — info.x-spec "system"; a single OPTIONS operation
+      returning the server's conformance profile, which is the openEHR ITS-REST discovery contract.
+
+standards:
+- id: openehr-its-rest
+  name: openEHR Implementation Technology Specification — REST APIs
+  version: 1.0.3
+  conforms: true
+  claim: Fully supported (Overview, EHR, Query, Definition APIs)
+  evidence: >-
+    Conformance statement section 1.1 "APIs (ITS-REST)": "ITS-REST overall ... 1.0.3 ... Fully
+    supported ... Latest version is 1.0.3". Corroborated by the six ITS-REST OpenAPI documents
+    Cadasto serves under docs.cadasto.io and saved verbatim under openapi/.
+
+- id: openehr-rm
+  name: openEHR Reference Model
+  version: 1.1.0
+  conforms: true
+  claim: Fully supported for EHR, Demographic, Common, Data Structures, Data Types and Support
+  exclusions: [Integration, EHR Extract]
+  evidence: >-
+    Conformance statement section 2.2: "RM overall ... 1.1.0 ... Fully supported". Integration
+    and EHR Extract are explicitly "Not implemented" with the stated rationale that equivalent
+    functionality is delivered via Datamap, AQL queries and the FHIR Facade.
+
+- id: openehr-aql
+  name: Archetype Query Language
+  version: 1.1.0
+  conforms: true
+  claim: Fully supported
+  evidence: >-
+    Conformance statement section 2.4 "QUERY overall ... 1.1.0 ... Fully supported". Contract
+    evidence: POST /query/aql and the stored-query operations in
+    openapi/cadasto-query-api-openapi.json.
+
+- id: openehr-am
+  name: openEHR Archetype Model (ADL 1.4 / AOM 1.4 / OPT 1.4)
+  version: 2.3.0
+  conforms: true
+  claim: Fully supported for Archetype Technology, Identification, ADL 1.4, AOM 1.4, OPT 1.4, Archetype Profile
+  exclusions: [ADL 2 / AOM 2]
+  evidence: >-
+    Conformance statement section 2.4 "AM overall ... 2.3.0 ... Fully supported"; ADL 2 / AOM 2
+    marked "Not implemented — Limited market adoption ... no current plans". Contract evidence:
+    openapi/cadasto-definition-api-openapi.json exposes BOTH adl1.4 and adl2 template paths,
+    which is broader than the statement's ADL-1.4-only claim.
+
+- id: openehr-term
+  name: openEHR Terminology
+  version: 2.3.0
+  conforms: true
+  claim: Fully supported (Support Terminology, openEHR Terminology XML, External terminologies)
+  evidence: >-
+    Conformance statement section 2.3: "TERM overall ... 2.3.0 ... Fully supported ... Latest
+    version is 3.0.0", with a note that 3.0.0 introduces translation/maintenance changes with no
+    material runtime impact. Cadasto is one minor version behind current here, by declaration.
+
+- id: openehr-base
+  name: openEHR Base Model
+  version: 1.2.0
+  conforms: true
+  claim: Fully supported (Foundation Types, Base Types, Resource Model)
+  evidence: Conformance statement section 2.5 "BASE overall ... 1.2.0 ... Fully supported".
+
+- id: openehr-lang
+  name: openEHR Generic Languages (ODIN, P_BMM)
+  version: 1.0.0
+  conforms: true
+  claim: Fully supported (ODIN, P_BMM); BMM and Expression Language marked not applicable
+  evidence: Conformance statement section 2.4 "LANG overall ... 1.0.0 ... Fully supported".
+
+- id: smart-on-openehr
+  name: SMART on openEHR
+  version: 1.1.0
+  conforms: true
+  claim: Fully supported — app portability across CDRs
+  evidence: >-
+    Conformance statement section 1.1. Contract evidence: Cadasto publishes a dedicated pointer
+    OpenAPI document at https://docs.cadasto.io/smart-on-openehr
+    (openapi/cadasto-smart-on-openehr-openapi.json), and the authentication guide documents the
+    /.well-known/smart-configuration discovery document on the tenant auth host.
+
+- id: hl7-fhir
+  name: HL7 FHIR (facade)
+  version: R3 (DSTU3)
+  conforms: partial
+  claim: >-
+    "Fully supported" FHIR R3 facade with Datamap; FHIR messages are mapped to and from openEHR
+    objects and are NOT stored. R4/R5 "planned to release in 2026 Q2".
+  evidence: >-
+    Conformance statement, "Additional Cadasto CDR Features". Contract evidence is thin: no FHIR
+    CapabilityStatement is published on any anonymously reachable Cadasto host, and no FHIR
+    OpenAPI appears in the docs. The only FHIR trace in the contract is
+    GET /extra/v1/terminology/code24 ("Get FHIR ValueSet URL") in
+    openapi/cadasto-extra-api-openapi.json.
+  gap: >-
+    As of 2026-09-02 the published R4/R5 target (2026 Q2) has passed with no public statement
+    updating it.
+
+- id: oauth2
+  name: OAuth 2.0 Client Credentials (RFC 6749 s4.4) / Bearer tokens (RFC 6750)
+  conforms: true
+  evidence: >-
+    https://docs.cadasto.io/docs/guides/authentication documents the token endpoint, HTTP Basic
+    client authentication, the audience and scope parameters, the Bearer token_type, and the
+    RFC 6749 s5.2 error envelope. openapi/cadasto-extra-api-openapi.json declares
+    securitySchemes.bearerAuth (http/bearer, JWT).
+
+- id: rfc7232
+  name: HTTP Conditional Requests (ETag / If-Match optimistic concurrency)
+  conforms: true
+  evidence: >-
+    If-Match is a required header on composition and directory updates in
+    openapi/cadasto-ehr-api-openapi.json; 8 operations declare a 412 Precondition Failed
+    response. Documented in https://docs.cadasto.io/docs/quick-start.
+
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    No application/problem+json media type appears in any of the eight published documents;
+    error responses are declared with status codes and, where a body is described, plain
+    application/json. See errors/cadasto-problem-types.yml.
+
+- id: mcp
+  name: Model Context Protocol
+  version: '2025-03-26'
+  conforms: true
+  evidence: >-
+    Live probe 2026-09-02 of https://openehr-assistant-mcp.apps.cadasto.com/ — initialize
+    returned protocolVersion "2025-03-26" and capabilities {logging, completions, prompts,
+    resources(subscribe), tools}; tools/list, prompts/list, resources/list and
+    resources/templates/list all returned 200 anonymously. Payloads in mcp/cadasto-mcp-tools.json.
+  note: >-
+    2025-03-26 is not the current MCP revision; the server is one protocol revision behind.
+
+- id: a2a
+  name: A2A Agent Card
+  conforms: false
+  evidence: >-
+    /.well-known/agent-card.json and /.well-known/agent.json probed on www.cadasto.com (403,
+    blanket edge rule), cadasto.io (403), docs.cadasto.io (404 SPA shell) and
+    openehr-assistant-mcp.apps.cadasto.com (405). No agent card is served.
+
+- id: openapi
+  name: OpenAPI Specification
+  version: 3.1.1
+  conforms: true
+  evidence: All eight published documents declare openapi 3.1.1.
+
+- id: iso-9001
+  name: ISO 9001 (Quality management)
+  conforms: true
+  evidence: Certification badge displayed in the footer of https://www.cadasto.com/. No certificate document is published.
+
+- id: iso-27001
+  name: ISO/IEC 27001 (Information security management)
+  conforms: true
+  evidence: Certification badge displayed in the footer of https://www.cadasto.com/. No certificate document is published.
+
+- id: nen-7510
+  name: NEN 7510 (Dutch healthcare information security standard)
+  conforms: true
+  evidence: >-
+    Certification badge displayed in the footer of https://www.cadasto.com/. NEN 7510 is the
+    Netherlands-specific healthcare extension of ISO 27001 and is the sector-mandated control
+    for a Dutch care-data processor.
+
+- id: gdl2
+  name: openEHR Guideline Definition Language
+  version: 2.0.1
+  conforms: false
+  evidence: >-
+    Conformance statement section 2.1: "Not implemented". Clinical decision support is delegated
+    to an external system (Cambio CDS).
+
+- id: openehr-its-xml
+  name: openEHR XML Schemas (ITS-XML)
+  version: 2.0.0
+  conforms: not-applicable
+  evidence: >-
+    Conformance statement section 1.2 marks every XSD "Not applicable — Is not a CDR runtime
+    requirement".
+
+- id: openehr-sdt
+  name: openEHR Simplified Data Template (SDT / flat format)
+  conforms: false
+  evidence: >-
+    Conformance statement section 1.1: "Not implemented". Cadasto substitutes its own Datamap
+    JSON format, exposed at /extra/v1/datamap/* in openapi/cadasto-extra-api-openapi.json.
+    An integrator expecting SDT/FLAT payloads from a conformant openEHR CDR will not get them
+    here — this is the single largest deliberate divergence in the statement.
+
+- id: soap-wsdl
+  name: SOAP / WSDL
+  conforms: false
+  evidence: >-
+    No WSDL is published. https://www.cadasto.com/?wsdl returns 200 but serves the WordPress
+    homepage HTML, not a service description; docs.cadasto.io has no integration/enterprise
+    SOAP section and the GitHub org carries no .wsdl file.
+
+verification:
+  independent_audit: false
+  statement: >-
+    "Implementation conformance has been validated through systematic internal alignment with
+    official openEHR specifications, reference models and test data. We are currently working
+    with a third-party partner to establish a formal independent audit process."
+  governance_position: >-
+    Sebastian Iancu, co-owner of Cadasto, serves as Co-Chair of the openEHR Specifications
+    Editorial Committee — a governance seat in the standards body whose conformance Cadasto is
+    self-declaring. Recorded as disclosed by Cadasto in the statement itself.

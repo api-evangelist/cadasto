@@ -1,0 +1,56 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://docs.cadasto.io/docs/faq (environment model and credential issuance),
+  https://www.cadasto.com/get-started/ (free trial), and
+  https://docs.cadasto.io/docs/guides/authentication (per-environment credential isolation).
+  All fetched 2026-09-02.
+description: >-
+  Cadasto has an environment model but not a sandbox in the self-service sense. There is no
+  public test tenant, no test-mode key prefix, no hosted playground, no fixture or trigger
+  tooling and no time-simulation facility. What exists is three separately-credentialed
+  deployment environments and a human-provisioned free trial.
+self_service: false
+public_test_credentials: false
+test_key_prefix: null
+environments:
+- name: development
+  credentials: separate client_id / client_secret issued per environment
+- name: acceptation
+  credentials: separate client_id / client_secret issued per environment
+- name: production
+  credentials: separate client_id / client_secret issued per environment
+isolation_statement: >-
+  Verbatim from the docs FAQ: "Per-environment isolation. Credentials for development,
+  acceptation, and production are separate. Treat each set independently."
+trial:
+  offered: true
+  request_url: https://www.cadasto.com/get-started/
+  provisioning: 'approx. 2-3 business days, human-provisioned'
+  detail: plans/cadasto-plans-pricing.yml
+rehearsal_tooling:
+  example_generator:
+    endpoint: 'GET /definition/template/adl1.4/{template_id}/example'
+    description: >-
+      Returns a fully populated example COMPOSITION generated from an uploaded template. The
+      Quick Start recommends it as the starting point before committing real data. This is the
+      closest thing Cadasto publishes to a fixture generator, and it works against a real tenant
+      rather than a sandbox.
+    source: https://docs.cadasto.io/docs/quick-start
+  test_clocks: false
+  webhook_triggers: false
+  seeded_test_data: false
+open_source_alternative:
+  note: >-
+    An integrator can exercise the openEHR REST semantics without a Cadasto tenant: Cadasto's own
+    Go SDK repository ships an EHRbase docker-compose and .env.ehrbase configuration, and its
+    retired MCP server documented running against a local EHRbase. That is a third-party openEHR
+    server (vitasystems EHRbase), not a Cadasto sandbox, and it will not exercise the
+    Cadasto-specific Datamap, Episode or user endpoints.
+  evidence:
+  - https://github.com/Cadasto/openehr-sdk-go (docker-compose.yml, resources/ehrbase/*.openapi.yaml)
+  - https://github.com/Cadasto/openehr-server-mcp (.env.ehrbase)
+gaps:
+  - No public sandbox tenant or demo credentials.
+  - No test/live key distinction — one credential set per environment, all real.
+  - No hosted API console; the Scalar docs render request builders but there is no key to run them with.

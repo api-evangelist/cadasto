@@ -1,0 +1,205 @@
+generated: '2026-09-02'
+method: derived
+source: >-
+  Derived by binding Cadasto's published MCP tool lists to the operationIds in the OpenAPI
+  documents Cadasto serves at https://docs.cadasto.io/<api>/openapi.json (saved under openapi/).
+  Assistant-server tools come from a LIVE tools/list probe (mcp/cadasto-mcp-tools.json,
+  2026-09-02); retired-server tools come from the openehr-server-mcp README, which is the only
+  published record of them.
+purpose: >-
+  Show which of Cadasto's agent-facing tools are actually backed by a Cadasto REST operation.
+  The answer is the finding: NONE of the 12 tools on the live hosted MCP server touch a Cadasto
+  API. Every live tool reads the openEHR commons — ckm.openehr.org, specifications.openehr.org,
+  bundled guides and terminology. The 19 tools that DID map onto Cadasto's openEHR REST surface
+  belonged to openehr-server-mcp, which its own README marks retired. An agent can therefore
+  learn openEHR from Cadasto today, but cannot read or write a Cadasto CDR through MCP.
+
+surfaces:
+  openapi: openapi/            # 8 documents, 126 operations; public, anonymous, no auth to read
+  mcp_live: https://openehr-assistant-mcp.apps.cadasto.com/   # anonymous; tools/list probed 200
+  mcp_retired: https://github.com/Cadasto/openehr-server-mcp  # never hosted; no release
+  graphql: null                # Cadasto publishes no GraphQL endpoint
+  rest_runtime: https://<mycompany>.api.prod.cadasto.io/openehr/v1  # per-tenant, OAuth2-gated
+
+crosswalk:
+  # openehr-server-mcp (RETIRED) -> Cadasto openEHR REST operationIds
+  - tool: ehr_create
+    server: openehr-server-mcp
+    category: ehr
+    rest: [ehr_create, ehr_create_with_id]
+    binding: rest
+    confidence: high
+    note: Backed by POST /ehr and PUT /ehr/{ehr_id} in openapi/cadasto-ehr-api-openapi.json.
+  - tool: ehr_get
+    server: openehr-server-mcp
+    category: ehr
+    rest: [ehr_get_by_id, ehr_get_by_subject]
+    binding: rest
+    confidence: high
+  - tool: ehr_status_get
+    server: openehr-server-mcp
+    category: ehr
+    rest: [ehr_status_get_at_time, ehr_status_get_by_version_id]
+    binding: rest
+    confidence: high
+  - tool: ehr_contribution_create
+    server: openehr-server-mcp
+    category: ehr
+    rest: [contribution_create]
+    binding: rest
+    confidence: high
+  - tool: ehr_contribution_get
+    server: openehr-server-mcp
+    category: ehr
+    rest: [contribution_get]
+    binding: rest
+    confidence: high
+  - tool: composition_create
+    server: openehr-server-mcp
+    category: composition
+    rest: [composition_create]
+    binding: rest
+    confidence: high
+  - tool: composition_get
+    server: openehr-server-mcp
+    category: composition
+    rest: [composition_get]
+    binding: rest
+    confidence: high
+  - tool: composition_update
+    server: openehr-server-mcp
+    category: composition
+    rest: [composition_update]
+    binding: rest
+    confidence: high
+    note: The tool's If-Match argument is the operation's required If-Match header (RFC 7232).
+  - tool: composition_delete
+    server: openehr-server-mcp
+    category: composition
+    rest: [composition_delete]
+    binding: rest
+    confidence: high
+  - tool: composition_revision_history
+    server: openehr-server-mcp
+    category: composition
+    rest: [versioned_composition_revision_history]
+    binding: rest
+    confidence: high
+  - tool: template_list
+    server: openehr-server-mcp
+    category: definition
+    rest: ['definition_template_adl1.4_list', definition_template_adl2_list]
+    binding: rest
+    confidence: high
+  - tool: template_get
+    server: openehr-server-mcp
+    category: definition
+    rest: ['definition_template_adl1.4_get', definition_template_adl2_get, definition_template_adl2_version_get]
+    binding: rest
+    confidence: high
+  - tool: template_upload
+    server: openehr-server-mcp
+    category: definition
+    rest: ['definition_template_adl1.4_upload', definition_template_adl2_upload]
+    binding: rest
+    confidence: high
+  - tool: template_example_get
+    server: openehr-server-mcp
+    category: definition
+    rest: ['definition_template_adl1.4_example_get']
+    binding: rest
+    confidence: high
+  - tool: stored_query_list
+    server: openehr-server-mcp
+    category: definition
+    rest: [definition_query_list]
+    binding: rest
+    confidence: high
+  - tool: stored_query_get
+    server: openehr-server-mcp
+    category: definition
+    rest: [definition_query_version_get]
+    binding: rest
+    confidence: high
+  - tool: stored_query_upload
+    server: openehr-server-mcp
+    category: definition
+    rest: ['definition_query_store.yaml', 'definition_query_version_store.yaml']
+    binding: rest
+    confidence: medium
+    note: >-
+      operationIds are taken verbatim from the spec; Cadasto's published Definition API document
+      carries the literal ids "definition_query_store.yaml" and
+      "definition_query_version_store.yaml" — a build artefact leaking a filename into the id.
+      Recorded as-is rather than corrected.
+  - tool: query_adhoc
+    server: openehr-server-mcp
+    category: query
+    rest: [query_execute_adhoc_query, query_execute_adhoc_query_body]
+    binding: rest
+    confidence: high
+  - tool: stored_query_execute
+    server: openehr-server-mcp
+    category: query
+    rest: [query_execute_stored_query, query_execute_stored_query_body,
+      query_execute_stored_query_version, query_execute_stored_query_version_body]
+    binding: rest
+    confidence: high
+
+mcp_only:
+  # Every tool on the LIVE hosted server. None has a Cadasto REST backing operation.
+  - {tool: ckm_archetype_search, reason: Reads ckm.openehr.org (openEHR Clinical Knowledge Manager), not a Cadasto host.}
+  - {tool: ckm_archetype_get, reason: Reads ckm.openehr.org.}
+  - {tool: ckm_template_search, reason: Reads ckm.openehr.org.}
+  - {tool: ckm_template_get, reason: Reads ckm.openehr.org.}
+  - {tool: terminology_resolve, reason: Resolves against the bundled openEHR Terminology codesets shipped inside the server image.}
+  - {tool: type_specification_search, reason: Searches BMM JSON type specifications bundled from specifications.openehr.org.}
+  - {tool: type_specification_get, reason: Returns a bundled BMM JSON type specification.}
+  - {tool: guide_search, reason: Searches guides bundled in the server image; exposed as openehr://guides resources.}
+  - {tool: guide_get, reason: Returns a bundled guide document.}
+  - {tool: guide_adl_idiom_lookup, reason: Returns bundled ADL idiom snippets.}
+  - {tool: examples_search, reason: Searches bundled AQL/FLAT/STRUCTURED/ADL example artefacts.}
+  - {tool: examples_get, reason: Returns a bundled example artefact.}
+
+rest_only:
+  note: >-
+    Operations in Cadasto's published OpenAPI that no published MCP tool — live or retired —
+    exposes. The whole Demographic API (42 ops) and the whole Cadasto Additional API (27 ops,
+    including Datamap, Episodes and the FHIR ValueSet helper) have no agent surface at all.
+  groups:
+    - api: Demographic API
+      operations_unmapped: 42
+      examples: [person_create, person_get, person_update, person_delete, organisation_create,
+        role_create, agent_create, group_create, versioned_party_get, demographic_tags_get]
+    - api: Cadasto Additional API (Extra)
+      operations_unmapped: 27
+      examples: ['GET /extra/v1/definition/datamap', 'PUT /extra/v1/definition/datamap/{datamapName}',
+        'POST /extra/v1/datamap/{datamapName}', 'GET /extra/v1/ehr/{ehrUid}/episode',
+        'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}/activate', 'GET /extra/v1/terminology/code24',
+        'GET /extra/v1/user/info']
+      note: These operations have NO operationId in the published document, so they are listed by method+path.
+    - api: Admin API
+      operations_unmapped: 5
+      examples: [admin_ehr_delete, admin_ehr_delete_all, admin_ehr_merge,
+        admin_ehr_delete_composition, admin_template_delete]
+    - api: EHR API (directory + item-tag + versioned reads)
+      operations_unmapped: 14
+      examples: [directory_create, directory_update, directory_delete, directory_get_at_time,
+        directory_get_by_version_id, ehr_tags_get, composition_tags_update,
+        composition_tags_delete, ehr_status_tags_get, versioned_ehr_status_get]
+    - api: System API
+      operations_unmapped: 1
+      examples: [options]
+
+coverage:
+  openapi_operations_total: 126
+  mcp_tools_live: 12
+  mcp_tools_retired: 19
+  operations_reachable_via_live_mcp: 0
+  operations_reachable_via_retired_mcp: 30
+  tools_with_rest_binding: 19
+  tools_without_rest_binding: 12
+  finding: >-
+    0 of 126 published Cadasto REST operations are reachable from the one MCP server Cadasto
+    actually hosts. Reviving openehr-server-mcp — or adding an authenticated tenant transport to
+    the Assistant server — would take agent reach from 0 to roughly 30 operations immediately.

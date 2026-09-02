@@ -1,0 +1,34 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://www.cadasto.com/get-started/ (HTTP 200, fetched 2026-09-02), https://www.cadasto.com/
+  (HTTP 200) and https://www.cadasto.com/our-platform/ (HTTP 200). The site sitemap
+  (https://www.cadasto.com/sitemap.xml) lists no pricing page, and no /pricing or /plans URL is
+  linked from any page.
+plan_count: 0
+pricing_model: enterprise / reseller — no published price, no self-service tier
+currency: null
+free_tier: false
+trial:
+  offered: true
+  self_service: false
+  mechanism: request form on https://www.cadasto.com/get-started/
+  provisioning_time: 'approx. 2-3 business days (Cadasto''s own wording)'
+  fields_required: [First Name, Last Name, Email Address, Phone Number, Organisation, Message, data-processing consent]
+  follow_up: >-
+    Verbatim from the page: "Based on your experience with our trial, one of our authorised Value
+    Added Resellers will be in touch to discuss the next steps in your journey with Cadasto."
+  quote: 'That is why we offer a free trial, which you can request below.'
+plans: []
+note: >-
+  Cadasto publishes NO plans, NO tiers, NO list price, NO quota and NO overage schedule anywhere
+  on its public site. It sells through authorised Value Added Resellers, so commercial terms are
+  set by the reseller and never surface publicly. The free trial is real but gated behind a form
+  and a 2-3 business-day human provisioning step, and API credentials are issued by hand after
+  that (see https://docs.cadasto.io/docs/faq). A developer cannot obtain a key, or learn what the
+  platform costs, without talking to a person. This is plan_count 0 by publication, not by
+  absence of a commercial model.
+gaps:
+  - No pricing page exists on cadasto.com.
+  - No machine-readable pricing or catalog endpoint exists.
+  - The reseller list is not published, so a buyer cannot identify who would quote them.

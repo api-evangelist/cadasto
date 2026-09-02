@@ -1,0 +1,70 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enrichment overlay for EHR API
+  version: 1.0.0
+extends: openapi/cadasto-ehr-api-openapi.json
+x-provenance:
+  generated: '2026-09-02'
+  method: generated
+  source: >-
+    Enhancements API Evangelist derived from Cadasto's own public documentation while profiling
+    the spec harvested verbatim from https://docs.cadasto.io/ehr-api (openapi.json). The
+    underlying document is NEVER mutated; everything below is additive and reversible.
+actions:
+  - target: $.info
+    description: >-
+      Add the contact and documentation Cadasto publishes on its own site but omits from the
+      served document (info.contact, info.termsOfService and externalDocs are all absent upstream).
+    update:
+      contact:
+        name: Cadasto B.V.
+        url: https://www.cadasto.com/contact/
+        email: info@cadasto.com
+      x-api-evangelist-reference: https://docs.cadasto.io/ehr-api
+      x-api-evangelist-provider: cadasto
+  - target: $
+    description: Attach the API reference page as externalDocs.
+    update:
+      externalDocs:
+        url: https://docs.cadasto.io/ehr-api
+        description: Cadasto API reference for the EHR API.
+  - target: $.servers
+    description: >-
+      Record the REAL production base URL Cadasto documents in its Quick Start
+      (https://docs.cadasto.io/docs/quick-start) alongside the upstream example server. The
+      served document keeps the openEHR standard example variable; this ADDS the documented
+      Cadasto tenant pattern rather than replacing it.
+    update:
+      - url: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+        description: >-
+          Cadasto production tenant. {mycompany} is the tenant slug issued with your credentials.
+        variables:
+          mycompany:
+            default: mycompany
+            description: Your Cadasto tenant slug.
+  - target: $.components.securitySchemes
+    description: >-
+      Cadasto serves this openEHR ITS-REST document with an EMPTY securitySchemes and
+      security: [], so a generated client reads it as unauthenticated. Every operation in fact
+      requires an OAuth 2.0 client-credentials Bearer token
+      (https://docs.cadasto.io/docs/guides/authentication).
+    update:
+      cadastoOAuth2:
+        type: oauth2
+        description: OAuth 2.0 Client Credentials issued per tenant and per environment by Cadasto.
+        flows:
+          clientCredentials:
+            tokenUrl: https://{mycompany}.auth.prod.cadasto.io/oauth/token
+            scopes:
+              api.read: Read access to the Cadasto API surface.
+              api.write: Write access to the Cadasto API surface.
+  - target: $.info
+    description: Record the openEHR conformance Cadasto declares for this surface.
+    update:
+      x-domain-standard:
+        name: openEHR
+        body: openEHR International
+        its_rest_version: 1.0.3
+        reference_model_version: 1.1.0
+        statement: https://www.cadasto.com/wp-content/uploads/2026/06/Cadasto-CDR-openEHR-conformance-statement-June-2026.pdf
+        detail: conformance/cadasto-conformance.yml

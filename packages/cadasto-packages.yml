@@ -1,0 +1,136 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  github.com/Cadasto (public org listing), proxy.golang.org module index, repo.packagist.org,
+  and the published install docs at
+  https://github.com/Cadasto/openehr-assistant-mcp/blob/main/docs/install.md.
+  Every entry below is a first-party Cadasto B.V. repository (org: Cadasto, author
+  "Cadasto B.V." in .claude-plugin/plugin.json and composer.json vendor "cadasto").
+description: >-
+  First-party client libraries, MCP server distributions and AI-assistant plugins published by
+  Cadasto. Cadasto publishes NO client SDK for its own Cadasto CDR REST surface in npm, PyPI,
+  Maven Central, NuGet, RubyGems, Packagist or crates.io; the one language SDK it ships is a Go
+  module for the openEHR standard (usable against any openEHR server, Cadasto included),
+  distributed through the Go module proxy rather than a package registry UI.
+registries_checked:
+  - registry: pkg.go.dev / proxy.golang.org
+    result: hit
+  - registry: packagist
+    result: miss
+    note: >-
+      composer.json declares vendor/name cadasto/openehr-bmm, cadasto/openehr-assistant-mcp and
+      cadasto/openehr-server-mcp, but repo.packagist.org returns 404 for all three — the PHP
+      packages are consumed from source/Docker, not from Packagist.
+  - registry: npm
+    result: miss
+  - registry: pypi
+    result: miss
+  - registry: maven-central
+    result: miss
+  - registry: nuget
+    result: miss
+  - registry: rubygems
+    result: miss
+  - registry: crates.io
+    result: miss
+packages:
+  - name: github.com/cadasto/openehr-sdk-go
+    language: go
+    registry: go-proxy
+    official: true
+    url: https://pkg.go.dev/github.com/cadasto/openehr-sdk-go
+    repository: https://github.com/Cadasto/openehr-sdk-go
+    version: v0.24.0
+    published: '2026-08-30'
+    license: MIT
+    description: >-
+      Go SDK for openEHR — Reference Model types, AQL parsing/introspection, template and
+      web-template handling, and an openEHR REST client with OAuth 2.0 client-credentials,
+      JWT-bearer, token-introspection and SMART-on-openEHR auth sources.
+    note: >-
+      Version and date read from https://proxy.golang.org/github.com/!cadasto/openehr-sdk-go/@latest
+      (v0.24.0, 2026-08-30T21:20:20Z). 24 tagged releases; still pre-1.0.
+  - name: cadasto/openehr-bmm
+    language: php
+    registry: null
+    official: true
+    url: https://github.com/Cadasto/openehr-bmm
+    repository: https://github.com/Cadasto/openehr-bmm
+    version: 0.3.0
+    published: '2026-05-12'
+    license: MIT
+    description: >-
+      PHP library implementing the openEHR Basic Meta-Model (BMM) — an intermediate representation
+      of P_BMM specifications.
+    note: >-
+      version/published read from the GitHub release tag (0.3.0, 2026-05-12), NOT from a package
+      registry: composer.json names the package cadasto/openehr-bmm but repo.packagist.org
+      returns 404, so there is no registry metadata endpoint to query.
+  - name: ghcr.io/cadasto/openehr-assistant-mcp
+    language: php
+    registry: ghcr
+    distribution: container
+    official: true
+    url: https://github.com/Cadasto/openehr-assistant-mcp/pkgs/container/openehr-assistant-mcp
+    repository: https://github.com/Cadasto/openehr-assistant-mcp
+    version: '0.20.0'
+    published: '2026-07-30'
+    license: MIT
+    description: >-
+      Container distribution of the openEHR Assistant MCP server, published by the repo's
+      release.yml workflow. Run with
+      `docker run --rm -i ghcr.io/cadasto/openehr-assistant-mcp:latest php public/index.php --transport=stdio`.
+    note: >-
+      version/published read from the GitHub release (0.20.0, 2026-07-30) and confirmed against
+      the live hosted server, whose initialize response reports serverInfo.version 0.20.0.
+      The install docs pin `:latest`, which is unpinned — a consumer cannot tell which build
+      they get from the tag alone.
+  - name: openehr-assistant (Claude Code / Cursor plugin)
+    language: markdown
+    registry: claude-code-marketplace
+    distribution: git-ref
+    official: true
+    url: https://github.com/Cadasto/openehr-assistant-plugin
+    repository: https://github.com/Cadasto/openehr-assistant-plugin
+    version: v0.9.2
+    published: '2026-08-25'
+    license: MIT
+    description: >-
+      AI-assistant plugin suite: 8 Agent Skills, 3 subagents, 3 slash commands, hooks and an
+      .mcp.json wired to the hosted openEHR Assistant MCP endpoint.
+    note: >-
+      Distributed through Cadasto's own Claude Code plugin marketplace
+      (https://github.com/Cadasto/plugin-marketplace, marketplace.json v1.6.0), which pins the
+      plugin at git ref v0.9.2. No npm/PyPI package exists.
+  - name: cadasto (Claude Code plugin marketplace)
+    language: json
+    registry: claude-code-marketplace
+    distribution: git-ref
+    official: true
+    url: https://github.com/Cadasto/plugin-marketplace
+    repository: https://github.com/Cadasto/plugin-marketplace
+    version: v1.6.0
+    published: '2026-08-25'
+    license: MIT
+    description: >-
+      Cadasto's marketplace manifest listing five first-party plugins: openehr-assistant,
+      openehr-assistant-dev, go-coding, sdd and docs-editing.
+    note: version/published read from the GitHub release tag; no package registry carries it.
+  - name: cadasto/openehr-server-mcp
+    language: php
+    registry: null
+    official: true
+    status: retired
+    url: https://github.com/Cadasto/openehr-server-mcp
+    repository: https://github.com/Cadasto/openehr-server-mcp
+    version: null
+    published: null
+    license: MIT
+    description: >-
+      MCP server bridging AI clients to openEHR REST APIs (EHR, composition, template, stored
+      query, AQL). 21 tools, 11 prompts.
+    note: >-
+      version: null because the repository has NEVER cut a release (GitHub releases/latest -> 404)
+      and it is not on Packagist. Its README carries an explicit tombstone —
+      "Status: retired. This repository is no longer maintained. The code is outdated and should
+      not be used for new work." — last pushed 2026-08-03.

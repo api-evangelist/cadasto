@@ -1,0 +1,216 @@
+generated: '2026-09-02'
+method: searched
+source: >-
+  https://docs.cadasto.io/docs/quick-start, https://docs.cadasto.io/docs/guides/authentication,
+  https://docs.cadasto.io/docs/faq, https://docs.cadasto.io/docs/guides/itemtag,
+  https://docs.cadasto.io/docs/guides/cadasto-demographic-link, and the eight OpenAPI documents
+  under openapi/. Cross-checked against the openEHR ITS-REST 1.0.3 semantics Cadasto declares
+  conformance to.
+description: >-
+  Cross-cutting request/response semantics of the Cadasto CDR surface — the runtime behaviour
+  that applies to every operation and that the published OpenAPI documents do not express.
+  Cadasto inherits most of these from openEHR ITS-REST rather than inventing them, which is the
+  point of a standards-based CDR: an integrator who already speaks openEHR gets the conventions
+  for free.
+
+base_url: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+api_style: REST over HTTPS, JSON (and XML for ADL 1.4 operational templates), per-tenant hostname
+
+authentication:
+  scheme: OAuth 2.0 Client Credentials -> Bearer token in the Authorization header
+  token_lifetime_seconds: 3600
+  discovery: /.well-known/smart-configuration on the tenant auth host
+  detail: authentication/cadasto-authentication.yml
+  scopes: scopes/cadasto-scopes.yml
+
+representation_negotiation:
+  header: Prefer
+  values:
+    return=representation: Return the created/updated object in the response body.
+    return=minimal: Return only headers (Location / ETag).
+  note: >-
+    This is the openEHR ITS-REST convention and is used throughout the Quick Start. It is the
+    closest thing Cadasto has to a sparse-fields/expansion mechanism.
+  source: https://docs.cadasto.io/docs/quick-start
+
+field_expansion:
+  supported: false
+  note: No expand[], fields[] or sparse-fieldset parameter exists anywhere in the surface.
+
+formats:
+  composition: [json (canonical), xml, structured]
+  not_supported: [flat / SDT]
+  note: >-
+    Cadasto's conformance statement explicitly does NOT implement the openEHR Simplified Data
+    Template (SDT / FLAT). Its substitute is Datamap, a Cadasto-specific alias-to-openEHR-path
+    JSON format exposed at /extra/v1/datamap/*. An integrator porting from another openEHR CDR
+    that speaks FLAT must rewrite to canonical JSON or to Datamap.
+  source: openEHR conformance statement, June 2026
+
+concurrency:
+  mechanism: RFC 7232 conditional requests
+  request_header: If-Match
+  value: the latest version_uid
+  applies_to: [composition update, directory update, EHR_STATUS update, demographic party update]
+  failure_status: 412 Precondition Failed
+  guidance: >-
+    Verbatim from the Quick Start: "The If-Match header prevents lost updates: if another client
+    has modified the composition since you last read it, the server returns 412 Precondition
+    Failed. Retrieve the latest version and retry."
+  source: https://docs.cadasto.io/docs/quick-start
+
+idempotency:
+  idempotency_key_header: false
+  supported: partial
+  detail: >-
+    Cadasto publishes NO Idempotency-Key header and no request-deduplication contract. What it
+    publishes instead is safer for the write shapes it has: PUT operations are naturally
+    idempotent and are guarded by If-Match, so a retried write either applies once or returns
+    412. The genuinely non-idempotent operations are the POST creates (POST /ehr,
+    POST /ehr/{ehr_id}/composition, POST /demographic/person, POST /extra/v1/datamap/{name}) —
+    a client that retries a create after a timeout will create a duplicate, and there is no
+    published key to prevent it.
+  atomic_multi_write:
+    mechanism: CONTRIBUTION
+    endpoint: POST /ehr/{ehr_id}/contribution
+    description: >-
+      Groups multiple versioned-object changes into a single atomic commit with shared audit
+      metadata. This is openEHR's transaction primitive and is the correct way to make several
+      writes land together.
+    source: https://docs.cadasto.io/docs/quick-start
+  gap: >-
+    No Idempotency-Key on POST creates is the single largest agent-safety gap in this surface —
+    an agent retrying a timed-out composition commit has no published way to avoid duplicating
+    a clinical document.
+
+reversibility:
+  grade: documented
+  overall: >-
+    Cadasto has a real write surface and a real, if partial, reversal story: clinical deletes are
+    LOGICAL and preserve full version history, and episodes have an explicit activate/deactivate
+    pair. But NO reversal window is stated anywhere in the documentation, and there is no
+    published operation that restores a logically deleted composition. Graded `documented` (0.4),
+    not `verified`, for exactly that reason — an agent can see that an action is soft, but cannot
+    learn from Cadasto how long it has to undo it, or how.
+  write_surfaces:
+  - surface: COMPOSITION delete
+    operation: composition_delete (DELETE /ehr/{ehr_id}/composition/{version_uid})
+    reversal_operation: null
+    soft_delete: true
+    detail: >-
+      "Deletions are logical — the data is marked as deleted but remains in the version history
+      for audit purposes." The data survives, but no restore/undelete operation is published, so
+      recovery is a support request, not an API call.
+    window: not stated
+    source: https://docs.cadasto.io/docs/quick-start
+  - surface: COMPOSITION update
+    operation: composition_update (PUT, If-Match required)
+    reversal_operation: >-
+      Read the prior version via versioned_composition_version_get_by_id and re-commit it as a
+      new version.
+    soft_delete: n/a
+    detail: >-
+      Every prior version stays addressable by version_uid and is listed in
+      versioned_composition_revision_history, so an update is always recoverable in practice.
+    window: unbounded (version history is retained for audit)
+    source: https://docs.cadasto.io/docs/quick-start
+  - surface: Episode of care
+    operation: 'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}/deactivate'
+    reversal_operation: 'PUT /extra/v1/ehr/{ehrUid}/episode/{uid}/activate'
+    soft_delete: true
+    detail: >-
+      An explicit, symmetric reversal pair in the Cadasto Additional API — the clearest
+      reversibility signal in the whole surface.
+    window: not stated
+    source: openapi/cadasto-extra-api-openapi.json
+  - surface: Episode destroy
+    operation: 'PUT /extra/v1/admin/ehr/{ehrUid}/episode/{uid}/destroy'
+    reversal_operation: null
+    soft_delete: false
+    detail: Physical destruction, admin-tagged. Irreversible.
+    window: none
+  - surface: Admin EHR operations
+    operations: [admin_ehr_delete, admin_ehr_delete_all, admin_ehr_merge, admin_ehr_delete_composition, admin_template_delete]
+    reversal_operation: null
+    soft_delete: false
+    detail: >-
+      The Admin API is the physical-deletion surface and has NO reversal path. admin_ehr_delete_all
+      deletes every EHR in the tenant. It is reachable with the same coarse api.write scope as an
+      ordinary composition commit (see scopes/cadasto-scopes.yml) — there is no separate admin
+      scope in the published documentation.
+    window: none
+    risk: high
+  - surface: EHR-to-PERSON demographic link
+    operation: cadasto-person-uid request header on POST /ehr, PUT /ehr/{ehr_id}, PUT /ehr/{ehr_id}/ehr_status
+    reversal_operation: null
+    detail: >-
+      "The link is append-only on EHR_STATUS update — an EHR that already has a link cannot be
+      re-linked." Explicitly one-way by design.
+    window: none
+    source: https://docs.cadasto.io/docs/faq
+
+dry_run_mode:
+  supported: partial
+  mechanism: >-
+    GET /definition/template/adl1.4/{template_id}/example returns a fully populated example
+    composition for a template. That is a rehearsal aid, not a validate-only mode: there is no
+    ?dry_run, no validate-only endpoint, and no way to submit a candidate composition for
+    validation without committing it.
+  source: https://docs.cadasto.io/docs/quick-start
+
+pagination:
+  style: offset/limit — AQL only
+  scope: >-
+    Pagination exists ONLY on the Query API, expressed as AQL offset/fetch (and as the
+    corresponding query parameters on the query operations). No list operation elsewhere in the
+    surface — template lists, stored-query lists, datamap lists, demographic reads — declares a
+    pagination parameter or a cursor.
+  response_fields: openEHR RESULT_SET (columns[] + rows[])
+  gap: >-
+    An unbounded GET /definition/template/adl1.4 on a large tenant has no published way to page.
+
+metadata:
+  mechanism: ITEM_TAG
+  description: >-
+    openEHR ITEM_TAGs are arbitrary key/value annotations attached to a COMPOSITION or an
+    EHR_STATUS (and, in the Demographic API, to every party type). Read via
+    GET .../tags, written via PUT .../tags, removed via DELETE .../tags/{key}.
+  limits: not published
+  source: https://docs.cadasto.io/docs/guides/itemtag
+
+request_tracing:
+  request_id_header: null
+  note: No correlation/request-id header is documented or declared in any of the eight contracts.
+
+versioning:
+  scheme: path segment (/v1, /openehr/v1, /extra/v1)
+  detail: lifecycle/cadasto-lifecycle.yml
+
+error_envelope:
+  media_type: application/json
+  rfc9457: false
+  shape: not published
+  detail: errors/cadasto-problem-types.yml
+  note: >-
+    209 error responses are declared across the eight documents and NONE carries a schema. The
+    only documented envelope is the OAuth token endpoint's RFC 6749 s5.2 shape.
+
+rate_limit_signaling:
+  headers: none published
+  status_on_exhaustion: not published
+  detail: rate-limits/cadasto-rate-limits.yml
+
+health:
+  endpoints:
+  - 'GET /extra/health/startup'
+  - 'GET /extra/health/live'
+  - 'GET /extra/health/ready'
+  note: Kubernetes-style probes on the tenant host; there is no public status page.
+
+cross_links:
+  authentication: authentication/cadasto-authentication.yml
+  scopes: scopes/cadasto-scopes.yml
+  errors: errors/cadasto-problem-types.yml
+  lifecycle: lifecycle/cadasto-lifecycle.yml
+  rate_limits: rate-limits/cadasto-rate-limits.yml
+  data_model: data-model/cadasto-data-model.yml
