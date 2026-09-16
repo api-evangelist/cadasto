@@ -39,168 +39,21 @@ maintainers:
   email: info@apis.io
 
 apis:
-- name: Cadasto EHR API
-  description: >-
-    The openEHR ITS-REST EHR API as implemented and published by Cadasto: create and read EHRs,
-    read and update EHR_STATUS, commit/retrieve/update/logically-delete versioned COMPOSITIONs,
-    manage the DIRECTORY (folder) structure, create and read CONTRIBUTIONs for atomic multi-object
-    commits, and read/write ITEM_TAGs. 33 operations. Updates use RFC 7232 If-Match optimistic
-    concurrency; deletes are logical and preserve version history for audit.
-  humanURL: https://docs.cadasto.io/ehr-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, Electronic Health Records, Clinical Data, Healthcare, Versioning]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-ehr-api-openapi.json
-  - type: Documentation
-    url: https://docs.cadasto.io/docs/overview
-  - type: APIReference
-    url: https://docs.cadasto.io/ehr-api
-  - type: Overlay
-    url: overlays/cadasto-ehr-api-overlay.yaml
-  - type: DataModel
-    url: data-model/cadasto-data-model.yml
-  - type: ErrorCatalog
-    url: errors/cadasto-problem-types.yml
-  - type: Conventions
-    url: conventions/cadasto-conventions.yml
-  - type: Authentication
-    url: authentication/cadasto-authentication.yml
-
-- name: Cadasto Query API (AQL)
-  description: >-
-    The openEHR ITS-REST Query API: execute ad-hoc Archetype Query Language (AQL) queries with
-    bound parameters, and execute stored queries by qualified name and version, over GET or POST.
-    6 operations. AQL queries are archetype-path based and therefore portable across templates
-    and across conformant openEHR servers.
-  humanURL: https://docs.cadasto.io/query-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, AQL, Query, Clinical Data, Healthcare]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-query-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/query-api
-  - type: Documentation
-    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
-  - type: Overlay
-    url: overlays/cadasto-query-api-overlay.yaml
-
-- name: Cadasto Definition API
-  description: >-
-    The openEHR ITS-REST Definition API: upload, list and retrieve ADL 1.4 Operational Templates
-    (OPT) and ADL 2 templates, fetch a generated example composition for a template, and store,
-    list and version stored AQL queries. 12 operations. Cadasto supports multiple published
-    versions of the same template, addressed as {template_id}::{uid}.
-  humanURL: https://docs.cadasto.io/definition-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, Templates, ADL, AQL, Healthcare]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-definition-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/definition-api
-  - type: Overlay
-    url: overlays/cadasto-definition-api-overlay.yaml
-
-- name: Cadasto Demographic API
-  description: >-
-    The openEHR ITS-REST Demographic API: create, read, update and delete PERSON, ORGANISATION,
-    ROLE, AGENT and GROUP parties, read versioned parties and their revision history, create
-    demographic CONTRIBUTIONs, and manage ITEM_TAGs on every party type. 42 operations.
-    Demographic data is versioned and stored separately from clinical content by design.
-  humanURL: https://docs.cadasto.io/demographic-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, Demographics, Identity, Healthcare, Clinical Data]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-demographic-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/demographic-api
-  - type: Overlay
-    url: overlays/cadasto-demographic-api-overlay.yaml
-
-- name: Cadasto Admin API
-  description: >-
-    The openEHR ITS-REST Admin API: privileged, physically destructive operations — delete a
-    single EHR, delete all EHRs, merge two EHRs, delete a composition outright, and delete a
-    template. 5 operations. Marked x-status DEVELOPMENT in the published document. These are the
-    only operations in the Cadasto surface that are NOT reversible.
-  humanURL: https://docs.cadasto.io/admin-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, Administration, Healthcare, Data Management]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-admin-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/admin-api
-  - type: Overlay
-    url: overlays/cadasto-admin-api-overlay.yaml
-
-- name: Cadasto System API
-  description: >-
-    The openEHR ITS-REST System API: a single OPTIONS operation returning server capabilities,
-    the openEHR specification versions the server implements, and its conformance profile. This
-    is the machine-readable counterpart of Cadasto's published PDF conformance statement.
-  humanURL: https://docs.cadasto.io/system-api
-  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
-  tags: [openEHR, Conformance, Discovery, Healthcare]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-system-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/system-api
-  - type: Overlay
-    url: overlays/cadasto-system-api-overlay.yaml
-
-- name: Cadasto Additional API
-  description: >-
-    Cadasto's own extension surface on top of openEHR REST, described by the vendor as
-    "Cadasto-specific... This API only works within Cadasto". 27 operations across Datamap
-    definitions and Datamap data (a simplified alias-to-openEHR-path JSON format for search,
-    read and write), episodes of care with activate/deactivate/destroy, a FHIR ValueSet
-    terminology helper, user info and caseload, and Kubernetes-style startup/live/ready health
-    probes. Bearer JWT auth. No operationIds are declared in the published document.
-  humanURL: https://docs.cadasto.io/extra-api
-  baseURL: https://api.customer.cadasto.io
-  tags: [openEHR, Datamap, Episodes of Care, Terminology, FHIR, Healthcare]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-extra-api-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/extra-api
-  - type: Overlay
-    url: overlays/cadasto-extra-api-overlay.yaml
-  - type: Authentication
-    url: authentication/cadasto-authentication.yml
-
-- name: Cadasto SMART on openEHR
-  description: >-
-    A deliberately minimal OpenAPI document that acts as a discovery pointer to the SMART on
-    openEHR specification for app launch, service discovery and third-party app authorization
-    against a Cadasto tenant. It declares zero operations by design and points at the canonical
-    specification rather than restating it.
-  humanURL: https://docs.cadasto.io/smart-on-openehr
-  baseURL: https://auth.customer.cadasto.io
-  tags: [openEHR, SMART on openEHR, OAuth, App Launch, Healthcare]
-  properties:
-  - type: OpenAPI
-    url: openapi/cadasto-smart-on-openehr-openapi.json
-  - type: APIReference
-    url: https://docs.cadasto.io/smart-on-openehr
-  - type: Authentication
-    url: authentication/cadasto-authentication.yml
-
 - name: openEHR Assistant MCP Server
   description: >-
-    Cadasto's live, hosted, anonymous Model Context Protocol server for openEHR modelling work:
-    12 tools (CKM archetype and template search/get, openEHR terminology resolution, BMM type
-    specification search/get, bundled guide and example search/get), 14 guided prompts, 50
-    resources and 3 resource templates under openehr:// URIs. Streamable HTTP. Probed live on
-    2026-09-02 — initialize and tools/list both returned 200 with no credentials.
+    Cadasto's live, hosted, anonymous Model Context Protocol server for openEHR modelling work: 12 tools
+    (CKM archetype and template search/get, openEHR terminology resolution, BMM type specification search/get,
+    bundled guide and example search/get), 14 guided prompts, 50 resources and 3 resource templates under
+    openehr:// URIs. Streamable HTTP. Probed live on 2026-09-02 — initialize and tools/list both returned
+    200 with no credentials.
   humanURL: https://cadasto.github.io/openehr-assistant/
   baseURL: https://openehr-assistant-mcp.apps.cadasto.com/
-  tags: [MCP, openEHR, Agents, Clinical Modeling, Healthcare]
+  tags:
+  - MCP
+  - openEHR
+  - Agents
+  - Clinical Modeling
+  - Healthcare
   properties:
   - type: MCPServer
     url: mcp/cadasto-mcp.yml
@@ -210,8 +63,964 @@ apis:
     url: https://github.com/Cadasto/openehr-assistant-mcp
   - type: Documentation
     url: https://cadasto.github.io/openehr-assistant/
+- aid: cadasto:cadasto-adl1-4-api
+  name: Cadasto ADL1.4 API
+  description: "Management of [AOM and ADL 1.4](https://specifications.openehr.org/releases/AM/latest)\
+    \ Operational Templates (OPTs). \nThese templates can be created using [modelling tools](https://www.openehr.org/downloads/modellingtools)\
+    \ such as the Template Designer and the Archetype Designer. \n\nOperational templates simplify the\
+    \ creation of openEHR-based input or storage implementations by, for a specific COMPOSITION template\
+    \ (use case), collecting all labels, requirements and constraints from all contained archetypes and\
+    \ sub-templates into a single easily parsed file. \nThis file can be a basis for UI-generation/creation\
+    \ and for data validation."
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - ADL1.4
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-adl1-4-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-adl2-api
+  name: Cadasto ADL2 API
+  description: >-
+    Management of [AOM2](https://specifications.openehr.org/releases/AM/latest/AOM2.html#_templates) templates.
 
+
+    See also [ADL2 Template specifications](https://specifications.openehr.org/releases/AM/latest/ADL2.html#_templates).
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - ADL2
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-adl2-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-admin-api
+  name: Cadasto Admin API
+  description: Admin-only actions, such as permanently deleting (destroy) episodes.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Admin
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-admin-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-agent-api
+  name: Cadasto AGENT API
+  description: >-
+    Management of the [AGENT](https://specifications.openehr.org/releases/RM/latest/demographic.html#_agent_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - AGENT
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-agent-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-composition-api
+  name: Cadasto COMPOSITION API
+  description: >-
+    Management of [COMPOSITION](https://specifications.openehr.org/releases/RM/latest/ehr.html#_composition_class)
+    and [VERSIONED_COMPOSITION](https://specifications.openehr.org/releases/RM/latest/ehr.html#_versioned_composition_class)
+    resources.
+
+    Actions upon resources of this group are also formally described in the [I_EHR_COMPOSITION](https://specifications.openehr.org/releases/SM/latest/openehr_platform.html#_i_ehr_composition_interface)
+    Abstract Service Model interface.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - COMPOSITION
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-composition-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-contribution-api
+  name: Cadasto CONTRIBUTION API
+  description: >-
+    Management of [CONTRIBUTION](https://specifications.openehr.org/releases/RM/latest/common.html#_contribution_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - CONTRIBUTION
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-contribution-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-datamap-definition-api
+  name: Cadasto Datamap Definition API
+  description: >-
+    Management of datamap definitions (XML). Defines what data is available
+
+    and how it can be mapped/queried for Cadasto-specific integrations.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Datamap Definition
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-datamap-definition-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-datamap-query-api
+  name: Cadasto Datamap Query API
+  description: >-
+    Run datamap queries and manage datamap data.
+
+    Supports ad-hoc XML queries and CRUD via JSON for Cadasto.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Datamap Query
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-datamap-query-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-directory-api
+  name: Cadasto DIRECTORY API
+  description: >-
+    Management of the [directory](https://specifications.openehr.org/releases/RM/latest/ehr.html#_directory)
+    [FOLDER](https://specifications.openehr.org/releases/RM/latest/common.html#_folder_class) resource.
+
+    Actions upon resources of this group are also formally described in the [I_EHR_DIRECTORY](https://specifications.openehr.org/releases/SM/latest/openehr_platform.html#_i_ehr_directory_interface)
+    Abstract Service Model interface.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - DIRECTORY
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-directory-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-ehr-api
+  name: Cadasto EHR API
+  description: >-
+    Admin management of [EHRs](https://specifications.openehr.org/releases/RM/latest/ehr.html#_ehr_class).
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - EHR
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-ehr-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-ehr-status-api
+  name: Cadasto EHR STATUS API
+  description: >-
+    Management of [EHR_STATUS](https://specifications.openehr.org/releases/RM/latest/ehr.html#_ehr_status_class)
+    and [VERSIONED_EHR_STATUS](https://specifications.openehr.org/releases/RM/latest/ehr.html#_versioned_ehr_status_class)
+    resources.
+
+    Actions upon resources of this group are also formally described in the [I_EHR_STATUS](https://specifications.openehr.org/releases/SM/latest/openehr_platform.html#_i_ehr_status_interface)
+    Abstract Service Model interface.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - EHR_STATUS
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-ehr-status-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-episode-api
+  name: Cadasto Episode API
+  description: >-
+    CRUD on episodes within an EHR and status changes (activate/deactivate).
+
+    Episodes group medical data around a clinical problem or episode of care
+
+    across time and encounters.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Episode
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-episode-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-group-api
+  name: Cadasto GROUP API
+  description: >-
+    Management of the [GROUP](https://specifications.openehr.org/releases/RM/latest/demographic.html#_group_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - GROUP
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-group-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-health-api
+  name: Cadasto Health API
+  description: >-
+    Health checks for monitoring and orchestration.
+
+    Used for startup, liveness, and readiness probes.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-health-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-item-tag-api
+  name: Cadasto ITEM TAG API
+  description: >-
+    Management of [ITEM_TAG](https://specifications.openehr.org/releases/RM/latest/common.html#_item_tag_class)
+    resources attached to demographic versioned objects (PERSON, AGENT, GROUP, ORGANISATION, ROLE). See
+    also the [ITEM_TAG guide](/docs/guides/item-tag).
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - ITEM_TAG
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-item-tag-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-options-api
+  name: Cadasto Options API
+  description: The Options API from Cadasto — 1 operation(s) for options.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Options
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-options-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-organisation-api
+  name: Cadasto ORGANISATION API
+  description: >-
+    Management of the [ORGANISATION](https://specifications.openehr.org/releases/RM/latest/demographic.html#_organisation_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - ORGANISATION
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-organisation-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-person-api
+  name: Cadasto PERSON API
+  description: >-
+    Management of the [PERSON](https://specifications.openehr.org/releases/RM/latest/demographic.html#_person_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - PERSON
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-person-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-query-api
+  name: Cadasto Query API
+  description: >-
+    Management of [stored (registered) queries](https://specifications.openehr.org/releases/SM/latest/openehr_platform.html#_registered_queries)
+    in the system.
+
+    Actions upon resources of this group are also formally described in the [I_DEFINITION_QUERY](https://specifications.openehr.org/releases/SM/latest/openehr_platform.html#_i_definition_query_interface)
+    Abstract Service Model interface.
+
+
+    Stored queries are identified by their [qualified name and version](query.html#tag/Qualified_query_name).
+
+    They can be executed using the [query endpoint](query.html#tag/Query/operation/query_execute_stored_query_body).
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Query
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-query-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-role-api
+  name: Cadasto ROLE API
+  description: >-
+    Management of the [ROLE](https://specifications.openehr.org/releases/RM/latest/demographic.html#_role_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - ROLE
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-role-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-terminology-api
+  name: Cadasto Terminology API
+  description: Terminology helpers, such as retrieving FHIR ValueSet URLs.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - Terminology
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-terminology-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-user-api
+  name: Cadasto User API
+  description: User information and caseload for the authenticated user.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - User
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-user-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
+- aid: cadasto:cadasto-versioned-party-api
+  name: Cadasto VERSIONED PARTY API
+  description: >-
+    Management of the [VERSIONED_PARTY](https://specifications.openehr.org/releases/RM/latest/demographic.html#_versioned_party_class)
+    class.
+  humanURL: https://docs.cadasto.io/ehr-api
+  baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
+  tags:
+  - VERSIONED_PARTY
+  properties:
+  - type: OpenAPI
+    url: openapi/cadasto-versioned-party-api-openapi.yml
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/overview
+  - type: APIReference
+    url: https://docs.cadasto.io/ehr-api
+  - type: DataModel
+    url: data-model/cadasto-data-model.yml
+  - type: ErrorCatalog
+    url: errors/cadasto-problem-types.yml
+  - type: Conventions
+    url: conventions/cadasto-conventions.yml
+  - type: Authentication
+    url: authentication/cadasto-authentication.yml
+  - type: APIReference
+    url: https://docs.cadasto.io/query-api
+  - type: Documentation
+    url: https://docs.cadasto.io/docs/guides/aql-archetype-query-language
+  - type: APIReference
+    url: https://docs.cadasto.io/definition-api
+  - type: APIReference
+    url: https://docs.cadasto.io/demographic-api
+  - type: APIReference
+    url: https://docs.cadasto.io/admin-api
+  - type: APIReference
+    url: https://docs.cadasto.io/system-api
+  - type: APIReference
+    url: https://docs.cadasto.io/extra-api
+  - type: APIReference
+    url: https://docs.cadasto.io/smart-on-openehr
 common:
+- type: Overlay
+  url: overlays/cadasto-ehr-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-query-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-definition-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-demographic-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-admin-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-system-api-overlay.yaml
+- type: Overlay
+  url: overlays/cadasto-extra-api-overlay.yaml
 - type: Website
   url: https://www.cadasto.com/
 - type: DeveloperPortal
