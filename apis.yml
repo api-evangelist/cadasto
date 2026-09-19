@@ -195,6 +195,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Agents
+  tags_raw:
   - AGENT
   properties:
   - type: OpenAPI
@@ -404,6 +406,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Directory
+  tags_raw:
   - DIRECTORY
   properties:
   - type: OpenAPI
@@ -570,6 +574,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Group
+  tags_raw:
   - GROUP
   properties:
   - type: OpenAPI
@@ -730,6 +736,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Organisation
+  tags_raw:
   - ORGANISATION
   properties:
   - type: OpenAPI
@@ -770,6 +778,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Persons
+  tags_raw:
   - PERSON
   properties:
   - type: OpenAPI
@@ -858,6 +868,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Role
+  tags_raw:
   - ROLE
   properties:
   - type: OpenAPI
