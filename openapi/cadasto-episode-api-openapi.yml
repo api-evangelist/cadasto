@@ -1,0 +1,233 @@
+openapi: 3.2.0
+info:
+  title: Cadasto Additional Episode API
+  version: 1.0.0
+  description: 'Additional API on top of the openEHR REST API, specific to Cadasto.
+
+    The endpoints in this specification are Cadasto-specific and are intended
+
+    to make it easier for app builders to interact with openEHR (e.g. datamaps).
+
+    This API only works within Cadasto.'
+servers:
+- url: https://api.customer.cadasto.io
+security:
+- bearerAuth: []
+tags:
+- name: Episode
+  description: 'CRUD on episodes within an EHR and status changes (activate/deactivate).
+
+    Episodes group medical data around a clinical problem or episode of care
+
+    across time and encounters.'
+paths:
+  /extra/v1/ehr/{ehrUid}/episode:
+    parameters:
+    - $ref: '#/components/parameters/ehrUidPath'
+    get:
+      tags:
+      - Episode
+      summary: List episodes
+      description: Returns episodes that group medical data for the given EHR.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+              examples:
+                default:
+                  value:
+                  - uid: <redacted>
+                    episodeId: E0100016
+                    active: true
+                    startsAt: '2025-12-04T15:46:53+01:00'
+                  - uid: <redacted>
+                    episodeId: E0126870
+                    active: true
+                    startsAt: '2025-12-04T15:46:53+01:00'
+      operationId: getExtraV1EhrByEhrUidEpisode
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Episode
+      summary: Create episode
+      description: 'Creates a new episode to group related medical data.
+
+        `urgency` allowed values: `at0012` (Crisis), `at0013` (Spoed), `at0014` (Regulier).
+
+        `careCircuit` is a coded value from terminology subset `care_circuit`.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              default:
+                value:
+                  name: Episode name
+                  active: true
+                  urgency: at0012
+                  careCircuit: '5'
+                  startsAt: '2025-12-04T15:46:53+01:00'
+                  endsAt: '2025-12-10T11:30:00+01:00'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    uid: <redacted>
+                    episodeId: E0126870
+                    active: true
+                    startsAt: '2025-12-04T15:46:53+01:00'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      operationId: postExtraV1EhrByEhrUidEpisode
+      x-operation-id-source: derived
+  /extra/v1/ehr/{ehrUid}/episode/{uid}:
+    parameters:
+    - $ref: '#/components/parameters/ehrUidPath'
+    - $ref: '#/components/parameters/uid'
+    get:
+      tags:
+      - Episode
+      summary: Get episode
+      description: Retrieves a single episode, which groups related medical data.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    uid: <redacted>
+                    episodeId: E0100016
+                    active: true
+                    startsAt: '2025-12-04T15:46:53+01:00'
+        '404':
+          description: Not found
+      operationId: getExtraV1EhrByEhrUidEpisodeByUid
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Episode
+      summary: Update episode
+      description: 'Updates an episode that groups related medical data.
+
+        `urgency` allowed values: `at0012` (Crisis), `at0013` (Spoed), `at0014` (Regulier).
+
+        `careCircuit` is a coded value from terminology subset `care_circuit`.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              default:
+                value:
+                  name: Updated episode name
+                  active: false
+                  urgency: at0012
+                  careCircuit: '5'
+                  startsAt: '2025-12-04T15:46:53+01:00'
+                  endsAt: '2025-12-12T12:00:00+01:00'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      operationId: putExtraV1EhrByEhrUidEpisodeByUid
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Episode
+      summary: Delete episode
+      description: Deletes an episode by UID.
+      responses:
+        '200':
+          description: Deleted
+        '404':
+          description: Not found
+      operationId: deleteExtraV1EhrByEhrUidEpisodeByUid
+      x-operation-id-source: derived
+  /extra/v1/ehr/{ehrUid}/episode/{uid}/activate:
+    parameters:
+    - $ref: '#/components/parameters/ehrUidPath'
+    - $ref: '#/components/parameters/uid'
+    put:
+      tags:
+      - Episode
+      summary: Activate episode
+      description: Sets the episode status to active.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value: {}
+        '404':
+          description: Not found
+      operationId: putExtraV1EhrByEhrUidEpisodeByUidActivate
+      x-operation-id-source: derived
+  /extra/v1/ehr/{ehrUid}/episode/{uid}/deactivate:
+    parameters:
+    - $ref: '#/components/parameters/ehrUidPath'
+    - $ref: '#/components/parameters/uid'
+    put:
+      tags:
+      - Episode
+      summary: Deactivate episode
+      description: Sets the episode status to inactive.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value: {}
+        '404':
+          description: Not found
+      operationId: putExtraV1EhrByEhrUidEpisodeByUidDeactivate
+      x-operation-id-source: derived
+components:
+  parameters:
+    uid:
+      name: uid
+      in: path
+      required: true
+      schema:
+        type: string
+    ehrUidPath:
+      name: ehrUid
+      in: path
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-ext-urls: {}

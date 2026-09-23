@@ -1,0 +1,77 @@
+openapi: 3.2.0
+info:
+  title: Definition ADL2 API
+  version: latest
+  x-status: STABLE
+  x-spec: definition
+  description: 'Management of AOM2 templates.
+
+
+    See also ADL2 Template specifications.'
+servers:
+- url: https://{baseUrl}/v1
+  description: An example openEHR server URL.
+  variables:
+    baseUrl:
+      default: cataniamc.prod.cadasto.com
+      description: The (example) server base URL prefix providing openEHR services. This may contain server name, port and base path prefix.
+security: []
+tags:
+- name: ADL2
+  x-displayName: ADL2 TEMPLATE
+  description: 'Management of AOM2 templates.
+
+
+    See also ADL2 Template specifications.'
+paths:
+  /definition/template/adl2:
+    post:
+      operationId: definition_template_adl2_upload
+      summary: Upload a template
+      description: This endpoint is defined but not implemented by the server.
+      tags:
+      - ADL2
+      responses:
+        '501':
+          description: This endpoint is not implemented.
+    get:
+      operationId: definition_template_adl2_list
+      summary: List templates
+      description: This endpoint is defined but not implemented by the server.
+      tags:
+      - ADL2
+      responses:
+        '501':
+          description: This endpoint is not implemented.
+  /definition/template/adl2/{template_id}:
+    get:
+      operationId: definition_template_adl2_get
+      summary: Get a template
+      description: This endpoint is defined but not implemented by the server.
+      tags:
+      - ADL2
+      responses:
+        '501':
+          description: This endpoint is not implemented.
+  /definition/template/adl2/{template_id}/{version}:
+    get:
+      operationId: definition_template_adl2_version_get
+      summary: Get a template at version
+      description: This endpoint is defined but not implemented by the server.
+      tags:
+      - ADL2
+      responses:
+        '501':
+          description: This endpoint is not implemented
+x-tagGroups:
+- name: Resource endpoints
+  tags:
+  - ADL1.4
+  - ADL2
+  - Query
+- name: Resource schema
+  tags:
+  - TemplateList_schema
+  - Template_schema
+  - StoredQuery_schema
+x-ext-urls: {}

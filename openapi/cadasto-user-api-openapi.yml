@@ -1,0 +1,163 @@
+openapi: 3.2.0
+info:
+  title: Cadasto Additional User API
+  version: 1.0.0
+  description: 'Additional API on top of the openEHR REST API, specific to Cadasto.
+
+    The endpoints in this specification are Cadasto-specific and are intended
+
+    to make it easier for app builders to interact with openEHR (e.g. datamaps).
+
+    This API only works within Cadasto.'
+servers:
+- url: https://api.customer.cadasto.io
+security:
+- bearerAuth: []
+tags:
+- name: User
+  description: User information and caseload for the authenticated user.
+paths:
+  /extra/v1/user/info:
+    get:
+      tags:
+      - User
+      summary: Get user info
+      description: Returns basic information about the authenticated user.
+      parameters:
+      - $ref: '#/components/parameters/role'
+      - $ref: '#/components/parameters/identifier'
+      - $ref: '#/components/parameters/identifierType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+            examples:
+              patient:
+                summary: Patient lookup
+                value:
+                  id: <redacted>
+                  fhir_patient_id: <redacted>
+                  ehr_id: <redacted>
+                  profile:
+                    name: Arie Achterweg
+                    nickname: Arie
+                    email: arie@code24.nl
+                    birth_date: '19840513'
+                    patientId: '9999999001'
+                  role:
+                    id: <redacted>
+                    all:
+                    - uid: <redacted>
+                      name: Patient
+                  success: true
+              practitioner:
+                summary: Practitioner lookup
+                value:
+                  id: <redacted>
+                  fhir_patient_id: <redacted>
+                  ehr_id: ''
+                  profile:
+                    name: Denillo Valkenier
+                    nickname: Denillo
+                    email: null
+                    birth_date: '19710530'
+                    patientId: null
+                  role:
+                    id: <redacted>
+                    all:
+                    - uid: <redacted>
+                      name: Zorgverlener
+                  success: true
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    message: Bad request.
+                    errors:
+                    - ' => The ''role'' parameter is required.'
+                    - ' => The ''identifier'' parameter is required.'
+                    - ' => The ''identifierType'' parameter is required.'
+                    exception:
+                    - type: Code24\\Slim\\Http\\Exception\\HttpBadRequestException
+                      code: 400
+                      message: Bad request.
+                      file: /app/src/Controller/UserController.php
+                      line: 82
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    message: User not found.
+                    exception:
+                    - type: Slim\\Exception\\HttpNotFoundException
+                      code: 404
+                      message: User not found.
+                      file: /app/src/Controller/UserController.php
+                      line: 100
+      operationId: getExtraV1UserInfo
+      x-operation-id-source: derived
+  /extra/v1/user/caseload:
+    get:
+      tags:
+      - User
+      summary: Get user caseload
+      description: Returns the caseload of the authenticated user.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    totalCount: 0
+                    patients: []
+      operationId: getExtraV1UserCaseload
+      x-operation-id-source: derived
+components:
+  parameters:
+    role:
+      name: role
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+        - patient
+        - practitioner
+      description: User role to resolve (patient or practitioner).
+    identifier:
+      name: identifier
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Identifier value to resolve to a user.
+    identifierType:
+      name: identifierType
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Identifier type. Use `partyUid` when providing a UUID.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-ext-urls: {}

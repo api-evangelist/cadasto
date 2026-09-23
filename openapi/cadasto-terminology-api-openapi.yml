@@ -1,0 +1,60 @@
+openapi: 3.2.0
+info:
+  title: Cadasto Additional Terminology API
+  version: 1.0.0
+  description: 'Additional API on top of the openEHR REST API, specific to Cadasto.
+
+    The endpoints in this specification are Cadasto-specific and are intended
+
+    to make it easier for app builders to interact with openEHR (e.g. datamaps).
+
+    This API only works within Cadasto.'
+servers:
+- url: https://api.customer.cadasto.io
+security:
+- bearerAuth: []
+tags:
+- name: Terminology
+  description: Terminology helpers, such as retrieving FHIR ValueSet URLs.
+paths:
+  /extra/v1/terminology/code24:
+    get:
+      tags:
+      - Terminology
+      summary: Get FHIR ValueSet URL
+      description: 'Returns the FHIR ValueSet URL for the given subset.
+
+        Responds with a 302 redirect and a `Location` header pointing to the FHIR server.'
+      parameters:
+      - $ref: '#/components/parameters/subset'
+      responses:
+        '200':
+          description: OK
+        '302':
+          description: Found (redirect to FHIR ValueSet)
+          headers:
+            Location:
+              description: URL of the FHIR ValueSet on the FHIR server.
+              schema:
+                type: string
+        '400':
+          description: Bad request
+        '501':
+          description: Not implemented
+      operationId: getExtraV1TerminologyCode24
+      x-operation-id-source: derived
+components:
+  parameters:
+    subset:
+      name: subset
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Subset identifier to resolve to a FHIR ValueSet.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-ext-urls: {}

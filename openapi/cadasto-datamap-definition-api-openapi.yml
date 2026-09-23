@@ -1,0 +1,216 @@
+openapi: 3.2.0
+info:
+  title: Cadasto Additional Datamap Definition API
+  version: 1.0.0
+  description: 'Additional API on top of the openEHR REST API, specific to Cadasto.
+
+    The endpoints in this specification are Cadasto-specific and are intended
+
+    to make it easier for app builders to interact with openEHR (e.g. datamaps).
+
+    This API only works within Cadasto.'
+servers:
+- url: https://api.customer.cadasto.io
+security:
+- bearerAuth: []
+tags:
+- name: Datamap Definition
+  description: 'Management of datamap definitions (XML). Defines what data is available
+
+    and how it can be mapped/queried for Cadasto-specific integrations.'
+paths:
+  /extra/v1/definition/datamap:
+    get:
+      tags:
+      - Datamap Definition
+      summary: List datamap definitions
+      description: Returns a list of available datamap definitions.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                default:
+                  value:
+                  - admission_cancelled
+                  - admission_details
+                  - Rapportage
+                  - T0004Dagboek
+                  - Verpleegkundige_Anamnese
+                  - vital_signs
+      operationId: getExtraV1DefinitionDatamap
+      x-operation-id-source: derived
+  /extra/v1/definition/datamap/{datamapName}:
+    parameters:
+    - $ref: '#/components/parameters/datamapName'
+    get:
+      tags:
+      - Datamap Definition
+      summary: Get datamap definition
+      description: Retrieves the datamap definition (XML) for the given name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    value: "<?xml version=\"1.0\"?>\n<datamap template=\"Proactieve Zorgplanning\">\n  <paths add=\"pzp_gesprek._root\" path=\"/context/other_context[at0003]/items[openEHR-EHR-CLUSTER.pzp_conversation.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"pzp_gesprek.type_gesprek\" path=\"/items[at0001]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"pzp_gesprek.aanleiding_gesprek\" path=\"/items[at0002]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"pzp_gesprek.relatie_met_eerder_pzpgesprek\" path=\"/items[at0003]/value\" comment=\"DV_IDENTIFIER\"/>\n  <paths add=\"pzp_gesprek.processtatus\" path=\"/items[at0004]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"pzp_gesprek.datum_laatste_bevestiging\" path=\"/items[at0005]/value\" comment=\"DV_DATE\"/>\n  <paths add=\"pzp_gesprek.toelichting\" path=\"/items[at0006]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"type_verklaring\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0005]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"status\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"beschrijving\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0006]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"conditie\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0007]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[openEHR-EHR-CLUSTER.values_and_goals.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"waarden_en_doelen.wat_is_belangrijk_voor_de_patint\" path=\"/items[at0001]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.persoonlijke_waarden\" path=\"/items[at0002]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.levensdoelen\" path=\"/items[at0003]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.zingevingsaspecten\" path=\"/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"waarden_en_doelen.narratieve_toelichting\" path=\"/items[at0005]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"opmerking\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/data[at0001]/items[at0038]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"geldigheid_start\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0053]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldigheid_eind\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0054]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"revisie_verloop_datum\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0056]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"laatst_gepdatet\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0055]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"persoon._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[openEHR-EHR-CLUSTER.person.v1]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.naam\" path=\"/items[at0001]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.label\" path=\"/items[at0011]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.gestructureerde_naam._root\" path=\"/items[at0002]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.identificatie\" path=\"/items[at0003]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.rol\" path=\"/items[at0004]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"persoon.elektronische_communicatie._root\" path=\"/items[at0006]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.organisatie._root\" path=\"/items[at0007]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.aanvullende_gegevens._root\" path=\"/items[at0008]\" comment=\"CLUSTER\"/>\n  <paths add=\"persoon.opmerking\" path=\"/items[at0010]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"mandaat\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0027]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"digitale_versie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0060]\" comment=\"CLUSTER\"/>\n  <paths add=\"verklaring_locatie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0058]\" comment=\"CLUSTER\"/>\n  <paths add=\"verklaring_locatie.locatie\" path=\"/items[at0030]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"uitbreiding._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_care_directive.v2]/protocol[at0010]/items[at0061]\" comment=\"CLUSTER\"/>\n  <paths add=\"intentie_van_zorg\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0002]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"onderbouwing\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0056]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"toelichting_behandelgrenzen\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0008]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"reanimatiebesluit\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0009]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie._root\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0014]\" comment=\"CLUSTER\"/>\n  <paths add=\"per_interventie.interventie\" path=\"/items[at0015]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie.besluit\" path=\"/items[at0034]/value\" comment=\"DV_CODED_TEXT\"/>\n  <paths add=\"per_interventie.voorwaarde\" path=\"/items[at0039]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"per_interventie.toelichting\" path=\"/items[at0040]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"patint_genformeerd\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0042]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"naasten_genformeerd\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0043]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"algemene_toelichting\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/data[at0001]/items[at0044]/value\" comment=\"DV_TEXT\"/>\n  <paths add=\"laatst_bijgewerkt\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0046]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldig_vanaf\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0047]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"geldig_tot\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0048]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"herziening_gepland\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0049]/value\" comment=\"DV_DATE_TIME\"/>\n  <paths add=\"grondslag\" path=\"/content[openEHR-EHR-EVALUATION.advance_intervention_decisions.v1]/protocol[at0045]/items[at0050]/value\" comment=\"DV_TEXT\"/>\n</datamap>\n"
+                    category: API
+                    name: proactieve_zorgplanning
+                    type: datamap
+                    layer: 1
+                    owner_uid: <redacted>
+                    timestamp: '2026-02-10 08:40:51'
+                    uid: <redacted>
+                    comment: ''
+        '404':
+          description: Not found
+      operationId: getExtraV1DefinitionDatamapByDatamapName
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Datamap Definition
+      summary: Create or update datamap definition
+      description: Creates or updates a datamap definition (XML body).
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      operationId: putExtraV1DefinitionDatamapByDatamapName
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Datamap Definition
+      summary: Delete datamap definition
+      description: Deletes the datamap definition with the given name.
+      responses:
+        '200':
+          description: Deleted
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+      operationId: deleteExtraV1DefinitionDatamapByDatamapName
+      x-operation-id-source: derived
+    head:
+      tags:
+      - Datamap Definition
+      summary: Check datamap definition exists
+      description: Checks whether a datamap definition exists.
+      responses:
+        '200':
+          description: Exists
+        '404':
+          description: Not found
+      operationId: headExtraV1DefinitionDatamapByDatamapName
+      x-operation-id-source: derived
+  /extra/v1/definition/datamap/{datamapName}/schema:
+    get:
+      tags:
+      - Datamap Definition
+      summary: Get datamap JSON schema
+      description: Retrieves the JSON Schema that belongs to the datamap.
+      parameters:
+      - $ref: '#/components/parameters/datamapName'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/schema+json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    id: Rapportage::datamap::daf4749d-6593-3584-a9e5-778dfe642e67
+                    title: T0016 Rapportage.v1
+                    type: object
+                    properties:
+                      Datum en Tijd:
+                        type: string
+                        rmType: DV_DATE_TIME
+                        dependencies: []
+                        required: true
+                        format: date_time
+                        href: /context/start_time
+                        title: Context start time
+                      Zorgverlener:
+                        type: string
+                        rmType: PARTY_IDENTIFIED/name
+                        dependencies: []
+                        required: false
+                        href: /content/provider/name
+                        title: Rapportage
+                        description: Rapportage Composition
+                      Zorgverlener_uid:
+                        type: unknown
+                        rmType: EVALUATION//provider/external_ref/id/value
+                        dependencies: []
+                        required: true
+                        _exception: Class [OBJECT_ID] not instantiable.
+                        href: /content/provider/external_ref/id/value
+                        title: Rapportage
+                        description: Rapportage Composition
+                      Type Contact:
+                        type: object
+                        rmType: DV_CODED_TEXT
+                        dependencies: []
+                        required: false
+                        oneOf:
+                        - code: at0021
+                          value: Face to face
+                        - code: at0022
+                          value: Ear to ear
+                        - code: at0023
+                          value: Bit to Bit
+                        - code: at0024
+                          value: Geen
+                        minItems: 0
+                        maxItems: 1
+                        href: /context/other_context[at0001]/items[at0020]/value
+                        title: Type contact
+                        description: Type contact
+                      Rapportage:
+                        type: string
+                        rmType: DV_TEXT/value
+                        dependencies: []
+                        required: true
+                        href: /content/data[at0001]/items[at0002]/value/value
+                        title: Unknown
+                    additionalProperties: false
+        '404':
+          description: Not found
+      operationId: getExtraV1DefinitionDatamapByDatamapNameSchema
+      x-operation-id-source: derived
+components:
+  parameters:
+    datamapName:
+      name: datamapName
+      in: path
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-ext-urls: {}

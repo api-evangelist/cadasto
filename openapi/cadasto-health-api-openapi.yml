@@ -1,0 +1,88 @@
+openapi: 3.2.0
+info:
+  title: Cadasto Additional Health API
+  version: 1.0.0
+  description: 'Additional API on top of the openEHR REST API, specific to Cadasto.
+
+    The endpoints in this specification are Cadasto-specific and are intended
+
+    to make it easier for app builders to interact with openEHR (e.g. datamaps).
+
+    This API only works within Cadasto.'
+servers:
+- url: https://api.customer.cadasto.io
+security:
+- bearerAuth: []
+tags:
+- name: Health
+  description: 'Health checks for monitoring and orchestration.
+
+    Used for startup, liveness, and readiness probes.'
+paths:
+  /extra/health/startup:
+    get:
+      tags:
+      - Health
+      summary: Startup probe
+      description: Verifies the application has started correctly.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    status: ok
+                    output: 'library: ok'
+      operationId: getExtraHealthStartup
+      x-operation-id-source: derived
+  /extra/health/live:
+    get:
+      tags:
+      - Health
+      summary: Liveness probe
+      description: Verifies the application is still alive.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    status: ok
+                    output: 'db: ping ok'
+      operationId: getExtraHealthLive
+      x-operation-id-source: derived
+  /extra/health/ready:
+    get:
+      tags:
+      - Health
+      summary: Readiness probe
+      description: Verifies the application is ready to receive traffic.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                default:
+                  value:
+                    status: ok
+                    output: 'stats: 117/47/683 app_env: production'
+      operationId: getExtraHealthReady
+      x-operation-id-source: derived
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+x-ext-urls: {}
