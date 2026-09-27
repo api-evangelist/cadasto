@@ -303,19 +303,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    datamapName:
-      name: datamapName
-      in: path
-      required: true
-      schema:
-        type: string
-    limit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
     uidBasedId:
       name: uidBasedId
       in: path
@@ -323,10 +310,10 @@ components:
       schema:
         type: string
         format: uuid
-    orderBy:
-      name: order_by
-      in: query
-      required: false
+    datamapName:
+      name: datamapName
+      in: path
+      required: true
       schema:
         type: string
     offset:
@@ -338,6 +325,19 @@ components:
         minimum: 1
     ehrUid:
       name: ehrUid
+      in: query
+      required: false
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+    orderBy:
+      name: order_by
       in: query
       required: false
       schema:

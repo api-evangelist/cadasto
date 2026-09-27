@@ -299,60 +299,13 @@ paths:
           default: openEHRSys.example.com
           description: The (example) server base URL prefix providing openEHR services. This may contain server name, port and base path prefix.
 components:
-  responses:
-    400_StoredQuery:
-      description: "`400 Bad Request` is returned when the server was unable to store the query. \nThis could be due to incorrect request body (could not be parsed, etc), unknown query type, etc.\n"
-    200_QueryList:
-      description: '`200 OK` is returned when the query resources are successfully retrieved.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/QueryList'
-    200_StoredQuery_get:
-      description: '`200 OK` is returned when the stored AQL is successfully retrieved.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/StoredQuery'
-    200_StoredQuery_stored:
-      description: '`200 OK` is returned when the query was successfully stored.
-
-        '
-      headers:
-        Location:
-          $ref: '#/components/headers/Location_Query'
-    404_Query_version:
-      description: '`404 Not Found` is returned when a stored query with `qualified_query_name` and `version` does not exist.
-
-        '
-    200_Query:
-      description: '`200 OK` is returned when the server is able to execute the query.
-
-        '
-      headers:
-        ETag:
-          $ref: '#/components/headers/ETag_RESULT_SET'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ResultSet'
-    400_Query:
-      description: '`400 Bad Request` is returned when the server was unable to execute the query due to invalid input, e.g. a required parameter is missing, or at least one of the parameters has an invalid syntax.
-
-        '
-    408_Query:
-      description: '`408 Request Timeout` is returned when there is a query execution timeout (i.e. maximum query execution time reached, therefore the server aborted the execution of the query).
-
-        '
-    404_Query:
-      description: '`404 Not Found` is returned when a stored query with `qualified_query_name` does not exist.
-
-        '
   schemas:
+    QueryName:
+      title: QueryName
+      type: string
+      description: "The (fully qualified) name of the query (when is registered as a stored query), in a format of `[{namespace}::]{query-name}`. \nThe `namespace` prefix is optional, and when used it should be in a form of a reverse domain name.\n"
+      examples:
+      - org.openehr::compositions
     QueryVersion:
       title: QueryVersion
       type: string
@@ -361,48 +314,6 @@ components:
         '
       examples:
       - 1.0.1
-    QueryList:
-      title: QueryList
-      type: array
-      items:
-        $ref: '#/components/schemas/StoredQuery'
-      description: 'List of Stored Query resources.
-
-        '
-      examples:
-      - - name: org.openehr::compositions
-          type: aql
-          version: 1.0.1
-          saved: '2017-07-16T19:20:30.450+01:00'
-          q: "SELECT c  FROM EHR e[ehr_id/value=$ehr_id] \n  CONTAINS COMPOSITION c[$compositionid] \nWHERE c/name/value = 'Vitals'"
-        - name: org.openehr::compositions
-          type: aql
-          version: 1.1.7
-          saved: '2018-06-13T09:37:20.530+01:00'
-          q: "SELECT c  FROM EHR e[ehr_id/value=$ehr_id] \n  CONTAINS COMPOSITION c[$uid] \nWHERE c/name/value = 'Vitals'"
-    QueryName:
-      title: QueryName
-      type: string
-      description: "The (fully qualified) name of the query (when is registered as a stored query), in a format of `[{namespace}::]{query-name}`. \nThe `namespace` prefix is optional, and when used it should be in a form of a reverse domain name.\n"
-      examples:
-      - org.openehr::compositions
-    AQL:
-      title: AQL
-      type: string
-      description: 'The given AQL query.
-
-        '
-      examples:
-      - SELECT e/ehr_id/value, c/context/start_time/value as startTime, obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic, c/uid/value AS cid, c/name FROM EHR e CONTAINS COMPOSITION c[openEHR-EHR-COMPOSITION.encounter.v1] CONTAINS OBSERVATION obs[openEHR-EHR-OBSERVATION.blood_pressure.v1] WHERE obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude >= $systolic_bp
-    QueryType:
-      title: QueryType
-      type: string
-      description: 'Query formalism type.
-
-        '
-      default: AQL
-      examples:
-      - AQL
     StoredQuery:
       title: StoredQuery
       required:
@@ -433,76 +344,42 @@ components:
         version: 1.0.1
         saved: '2017-07-16T19:20:30.450+01:00'
         q: SELECT c FROM EHR e[ehr_id/value=$ehr_id] CONTAINS COMPOSITION c[$compositionid] WHERE c/name/value = 'Vitals'
-    AdhocQueryExecute:
-      title: AdhocQueryExecute
-      required:
-      - q
-      type: object
-      properties:
-        q:
-          $ref: '#/components/schemas/AQL'
-        offset:
-          $ref: '#/components/schemas/Offset'
-        fetch:
-          $ref: '#/components/schemas/Fetch'
-        query_parameters:
-          $ref: '#/components/schemas/QueryParameters'
-    Fetch:
-      title: Fetch
-      type: integer
-      description: 'Number of rows to fetch (the default depends on the implementation).
+    AQL:
+      title: AQL
+      type: string
+      description: 'The given AQL query.
 
         '
-      format: int32
       examples:
-      - 10
-    ResultSetRow:
-      title: RESULT_SET_ROW
+      - SELECT e/ehr_id/value, c/context/start_time/value as startTime, obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic, c/uid/value AS cid, c/name FROM EHR e CONTAINS COMPOSITION c[openEHR-EHR-COMPOSITION.encounter.v1] CONTAINS OBSERVATION obs[openEHR-EHR-OBSERVATION.blood_pressure.v1] WHERE obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude >= $systolic_bp
+    QueryList:
+      title: QueryList
       type: array
-      items: {}
-      description: "A set of cells representing a RESULT_SET row, one cell for each column. \nContent of a cell is `ANY` (i.e. a `OBJECT` in most programming languages).\n"
-      examples:
-      - - 81433066-c417-4813-9b29-79783e7bed23
-        - '2017-02-16T13:50:11.308+01:00'
-        - 140
-        - 90910cf0-66a0-4382-b1f8-c0f27e81b42d::openEHRSys.example.com::1
-        - _type: DV_TEXT
-          value: Labs
-    ResultSetMetadata:
-      title: ResultSetMetadata
-      type: object
-      properties:
-        _href:
-          type: string
-          description: URL of the executed query (only for GET endpoint).
-          format: uri
-        _type:
-          type: string
-          description: The type of the serialized result object.
-        _schema_version:
-          type: string
-          description: The version of the specification defining the serialized object.
-        _created:
-          type: string
-          description: Result creation time (in the extended ISO 8601 format).
-          format: date-time
-        _generator:
-          type: string
-          description: Some identifier of the application that generated the result, useful for debugging.
-        _executed_aql:
-          type: string
-          description: "The actual AQL query that was executed by the server, after replacing the query parameters. \nThis attribute is not mandatory, but is useful for debugging.\n"
-      description: 'RESULT_SET metadata.
+      items:
+        $ref: '#/components/schemas/StoredQuery'
+      description: 'List of Stored Query resources.
 
         '
-      additionalProperties: true
       examples:
-      - _href: https://openEHRSys.example.com/v1/query/org.openehr::compositions
-        _type: RESULTSET
-        _schema_version: 1.0.0
-        _created: '2017-08-19T00:25:47.568+02:00'
-        _generator: openEHRSys.ResultSets.Serialization.Json.ResultSetJsonWriter (5.0.0.0)
-        _executed_aql: SELECT e/ehr_id/value, c/context/start_time/value as startTime, obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic, c/uid/value AS cid, c/name FROM EHR e CONTAINS COMPOSITION c[openEHR-EHR-COMPOSITION.encounter.v1] CONTAINS OBSERVATION obs[openEHR-EHR-OBSERVATION.blood_pressure.v1] WHERE obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude >= 50
+      - - name: org.openehr::compositions
+          type: aql
+          version: 1.0.1
+          saved: '2017-07-16T19:20:30.450+01:00'
+          q: "SELECT c  FROM EHR e[ehr_id/value=$ehr_id] \n  CONTAINS COMPOSITION c[$compositionid] \nWHERE c/name/value = 'Vitals'"
+        - name: org.openehr::compositions
+          type: aql
+          version: 1.1.7
+          saved: '2018-06-13T09:37:20.530+01:00'
+          q: "SELECT c  FROM EHR e[ehr_id/value=$ehr_id] \n  CONTAINS COMPOSITION c[$uid] \nWHERE c/name/value = 'Vitals'"
+    QueryType:
+      title: QueryType
+      type: string
+      description: 'Query formalism type.
+
+        '
+      default: AQL
+      examples:
+      - AQL
     ResultSetColumn:
       title: RESULT_SET_COLUMN
       required:
@@ -523,40 +400,27 @@ components:
       examples:
       - name: '#0'
         path: /ehr_id/value
-    QueryParameters:
-      title: QueryParameters
-      type: object
-      description: 'A set of query parameters.
-
-        '
-      additionalProperties: true
+    ResultSetRow:
+      title: RESULT_SET_ROW
+      type: array
+      items: {}
+      description: "A set of cells representing a RESULT_SET row, one cell for each column. \nContent of a cell is `ANY` (i.e. a `OBJECT` in most programming languages).\n"
       examples:
-      - ehr_id: 7d44b88c-4199-4bad-97dc-d78268e01398
-        systolic_bp: 140
-    Offset:
-      title: Offset
+      - - 81433066-c417-4813-9b29-79783e7bed23
+        - '2017-02-16T13:50:11.308+01:00'
+        - 140
+        - 90910cf0-66a0-4382-b1f8-c0f27e81b42d::openEHRSys.example.com::1
+        - _type: DV_TEXT
+          value: Labs
+    Fetch:
+      title: Fetch
       type: integer
-      description: 'The row number in result-set to start result-set from (`0`-based), default is `0`.
+      description: 'Number of rows to fetch (the default depends on the implementation).
 
         '
       format: int32
-      default: 0
       examples:
       - 10
-    Query:
-      title: Query
-      required:
-      - offset
-      - fetch
-      - query_parameters
-      type: object
-      properties:
-        offset:
-          $ref: '#/components/schemas/Offset'
-        fetch:
-          $ref: '#/components/schemas/Fetch'
-        query_parameters:
-          $ref: '#/components/schemas/QueryParameters'
     ResultSet:
       title: RESULT_SET
       required:
@@ -594,6 +458,142 @@ components:
           description: 'An ordered set of RESULT_SET rows.
 
             '
+    Query:
+      title: Query
+      required:
+      - offset
+      - fetch
+      - query_parameters
+      type: object
+      properties:
+        offset:
+          $ref: '#/components/schemas/Offset'
+        fetch:
+          $ref: '#/components/schemas/Fetch'
+        query_parameters:
+          $ref: '#/components/schemas/QueryParameters'
+    ResultSetMetadata:
+      title: ResultSetMetadata
+      type: object
+      properties:
+        _href:
+          type: string
+          description: URL of the executed query (only for GET endpoint).
+          format: uri
+        _type:
+          type: string
+          description: The type of the serialized result object.
+        _schema_version:
+          type: string
+          description: The version of the specification defining the serialized object.
+        _created:
+          type: string
+          description: Result creation time (in the extended ISO 8601 format).
+          format: date-time
+        _generator:
+          type: string
+          description: Some identifier of the application that generated the result, useful for debugging.
+        _executed_aql:
+          type: string
+          description: "The actual AQL query that was executed by the server, after replacing the query parameters. \nThis attribute is not mandatory, but is useful for debugging.\n"
+      description: 'RESULT_SET metadata.
+
+        '
+      additionalProperties: true
+      examples:
+      - _href: https://openEHRSys.example.com/v1/query/org.openehr::compositions
+        _type: RESULTSET
+        _schema_version: 1.0.0
+        _created: '2017-08-19T00:25:47.568+02:00'
+        _generator: openEHRSys.ResultSets.Serialization.Json.ResultSetJsonWriter (5.0.0.0)
+        _executed_aql: SELECT e/ehr_id/value, c/context/start_time/value as startTime, obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude AS systolic, c/uid/value AS cid, c/name FROM EHR e CONTAINS COMPOSITION c[openEHR-EHR-COMPOSITION.encounter.v1] CONTAINS OBSERVATION obs[openEHR-EHR-OBSERVATION.blood_pressure.v1] WHERE obs/data[at0001]/events[at0006]/data[at0003]/items[at0004]/value/magnitude >= 50
+    AdhocQueryExecute:
+      title: AdhocQueryExecute
+      required:
+      - q
+      type: object
+      properties:
+        q:
+          $ref: '#/components/schemas/AQL'
+        offset:
+          $ref: '#/components/schemas/Offset'
+        fetch:
+          $ref: '#/components/schemas/Fetch'
+        query_parameters:
+          $ref: '#/components/schemas/QueryParameters'
+    Offset:
+      title: Offset
+      type: integer
+      description: 'The row number in result-set to start result-set from (`0`-based), default is `0`.
+
+        '
+      format: int32
+      default: 0
+      examples:
+      - 10
+    QueryParameters:
+      title: QueryParameters
+      type: object
+      description: 'A set of query parameters.
+
+        '
+      additionalProperties: true
+      examples:
+      - ehr_id: 7d44b88c-4199-4bad-97dc-d78268e01398
+        systolic_bp: 140
+  responses:
+    200_StoredQuery_stored:
+      description: '`200 OK` is returned when the query was successfully stored.
+
+        '
+      headers:
+        Location:
+          $ref: '#/components/headers/Location_Query'
+    400_StoredQuery:
+      description: "`400 Bad Request` is returned when the server was unable to store the query. \nThis could be due to incorrect request body (could not be parsed, etc), unknown query type, etc.\n"
+    200_QueryList:
+      description: '`200 OK` is returned when the query resources are successfully retrieved.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QueryList'
+    200_StoredQuery_get:
+      description: '`200 OK` is returned when the stored AQL is successfully retrieved.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StoredQuery'
+    404_Query_version:
+      description: '`404 Not Found` is returned when a stored query with `qualified_query_name` and `version` does not exist.
+
+        '
+    408_Query:
+      description: '`408 Request Timeout` is returned when there is a query execution timeout (i.e. maximum query execution time reached, therefore the server aborted the execution of the query).
+
+        '
+    400_Query:
+      description: '`400 Bad Request` is returned when the server was unable to execute the query due to invalid input, e.g. a required parameter is missing, or at least one of the parameters has an invalid syntax.
+
+        '
+    404_Query:
+      description: '`404 Not Found` is returned when a stored query with `qualified_query_name` does not exist.
+
+        '
+    200_Query:
+      description: '`200 OK` is returned when the server is able to execute the query.
+
+        '
+      headers:
+        ETag:
+          $ref: '#/components/headers/ETag_RESULT_SET'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResultSet'
   parameters:
     qualified_query_name:
       name: qualified_query_name

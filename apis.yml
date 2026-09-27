@@ -11,6 +11,22 @@ description: >-
   its size: a live anonymous MCP server for openEHR modelling knowledge, eight packaged Agent
   Skills, a Claude Code plugin marketplace, an llms.txt, and a public openEHR conformance
   statement naming every specification version it does and does not implement.
+deliveryModel:
+  model: saas
+  license_evidence:
+    not_product:
+    - cadasto/openehr-assistant-mcp
+  open_source: unknown
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-not-product
+  generated: '2026-09-25'
+  method: derived
 image: https://www.cadasto.com/wp-content/uploads/2025/11/cropped-cadasto-favicon-192x192.png
 url: https://raw.githubusercontent.com/api-evangelist/cadasto/refs/heads/main/apis.yml
 x-type: company

@@ -39,27 +39,6 @@ paths:
         '200':
           $ref: '#/components/responses/200_options'
 components:
-  headers:
-    Allow:
-      description: 'The `Allow` header lists the set of methods supported.
-
-        '
-      schema:
-        type: string
-        examples:
-        - GET, POST, PUT, DELETE, OPTIONS
-  responses:
-    200_options:
-      description: '`200 OK` is returned when options and conformance statement was retrieved successfully.
-
-        '
-      headers:
-        Allow:
-          $ref: '#/components/headers/Allow'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Options'
   schemas:
     Options:
       title: Options
@@ -91,6 +70,27 @@ components:
         - /definition
         - /query
         - /admin
+  responses:
+    200_options:
+      description: '`200 OK` is returned when options and conformance statement was retrieved successfully.
+
+        '
+      headers:
+        Allow:
+          $ref: '#/components/headers/Allow'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Options'
+  headers:
+    Allow:
+      description: 'The `Allow` header lists the set of methods supported.
+
+        '
+      schema:
+        type: string
+        examples:
+        - GET, POST, PUT, DELETE, OPTIONS
 x-tagGroups:
 - name: Resource endpoints
   tags:
