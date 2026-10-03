@@ -303,6 +303,18 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
+    ehrUid:
+      name: ehrUid
+      in: query
+      required: false
+      schema:
+        type: string
+    orderBy:
+      name: order_by
+      in: query
+      required: false
+      schema:
+        type: string
     uidBasedId:
       name: uidBasedId
       in: path
@@ -316,19 +328,6 @@ components:
       required: true
       schema:
         type: string
-    offset:
-      name: offset
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-    ehrUid:
-      name: ehrUid
-      in: query
-      required: false
-      schema:
-        type: string
     limit:
       name: limit
       in: query
@@ -336,12 +335,13 @@ components:
       schema:
         type: integer
         minimum: 1
-    orderBy:
-      name: order_by
+    offset:
+      name: offset
       in: query
       required: false
       schema:
-        type: string
+        type: integer
+        minimum: 1
   securitySchemes:
     bearerAuth:
       type: http

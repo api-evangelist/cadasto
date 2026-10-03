@@ -116,36 +116,40 @@ paths:
           $ref: '#/components/responses/404_directory_unknown_ehr_id_or_no_version_uid_or_no_path'
 components:
   schemas:
-    UMPartySelf:
-      title: PARTY_SELF
+    DvMultimedia:
+      title: DV_MULTIMEDIA
       required:
       - _type
+      - media_type
+      - size
       type: object
       properties:
         _type:
-          enum:
-          - PARTY_SELF
           type: string
-        external_ref:
-          $ref: '#/components/schemas/PartyRef'
-      x-discriminator-value: PARTY_SELF
-    UMDvState:
-      title: DV_STATE
-      required:
-      - value
-      - is_terminal
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_STATE
+          default: DV_MULTIMEDIA
+        charset:
+          $ref: '#/components/schemas/CodePhrase'
+        language:
+          $ref: '#/components/schemas/CodePhrase'
+        alternate_text:
           type: string
-        value:
-          $ref: '#/components/schemas/DvCodedText'
-        is_terminal:
-          type: boolean
-      x-discriminator-value: DV_STATE
+        uri:
+          $ref: '#/components/schemas/UDvUri'
+        data:
+          type: string
+        media_type:
+          $ref: '#/components/schemas/CodePhrase'
+        compression_algorithm:
+          $ref: '#/components/schemas/CodePhrase'
+        integrity_check:
+          type: string
+        integrity_check_algorithm:
+          $ref: '#/components/schemas/CodePhrase'
+        thumbnail:
+          $ref: '#/components/schemas/DvMultimedia'
+        size:
+          type: integer
+      x-discriminator-value: DV_MULTIMEDIA
     PartyRef:
       title: PARTY_REF
       required:
@@ -168,8 +172,96 @@ components:
           value: b52b9408-7048-4ec8-94bd-831fb0727e67::cataniamc.prod.cadasto.com::1
         namespace: local
         type: PERSON
-    UMDvDate:
-      title: DV_DATE
+    UItem:
+      title: ITEM
+      oneOf:
+      - $ref: '#/components/schemas/Element'
+      - $ref: '#/components/schemas/Clstr'
+      discriminator:
+        propertyName: _type
+        mapping:
+          ELEMENT: '#/components/schemas/Element'
+          CLUSTER: '#/components/schemas/Clstr'
+    UMPartySelf:
+      title: PARTY_SELF
+      required:
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - PARTY_SELF
+          type: string
+        external_ref:
+          $ref: '#/components/schemas/PartyRef'
+      x-discriminator-value: PARTY_SELF
+    ItemSingle:
+      title: ITEM_SINGLE
+      required:
+      - name
+      - archetype_node_id
+      - item
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/UDvText'
+        archetype_node_id:
+          type: string
+          xml:
+            attribute: true
+        uid:
+          $ref: '#/components/schemas/UUidBasedId'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        archetype_details:
+          $ref: '#/components/schemas/Archetyped'
+        feeder_audit:
+          $ref: '#/components/schemas/FeederAudit'
+        _type:
+          type: string
+          default: ITEM_SINGLE
+        item:
+          $ref: '#/components/schemas/Element'
+      x-discriminator-value: ITEM_SINGLE
+    UItemStructure:
+      title: ITEM_STRUCTURE
+      oneOf:
+      - $ref: '#/components/schemas/ItemSingle'
+      - $ref: '#/components/schemas/ItemList'
+      - $ref: '#/components/schemas/ItemTable'
+      - $ref: '#/components/schemas/ItemTree'
+      discriminator:
+        propertyName: _type
+        mapping:
+          ITEM_SINGLE: '#/components/schemas/ItemSingle'
+          ITEM_LIST: '#/components/schemas/ItemList'
+          ITEM_TABLE: '#/components/schemas/ItemTable'
+          ITEM_TREE: '#/components/schemas/ItemTree'
+    UMDvParsable:
+      title: DV_PARSABLE
+      required:
+      - _type
+      - value
+      - formalism
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_PARSABLE
+          type: string
+        charset:
+          $ref: '#/components/schemas/CodePhrase'
+        language:
+          $ref: '#/components/schemas/CodePhrase'
+        value:
+          type: string
+        formalism:
+          type: string
+      x-discriminator-value: DV_PARSABLE
+    UMDvBoolean:
+      title: DV_BOOLEAN
       required:
       - value
       - _type
@@ -177,29 +269,384 @@ components:
       properties:
         _type:
           enum:
-          - DV_DATE
+          - DV_BOOLEAN
           type: string
         value:
+          type: boolean
+      x-discriminator-value: DV_BOOLEAN
+    UUidBasedId:
+      title: UID_BASED_ID
+      oneOf:
+      - $ref: '#/components/schemas/UMHierObjectId'
+      - $ref: '#/components/schemas/UMObjectVersionId'
+      discriminator:
+        propertyName: _type
+        mapping:
+          HIER_OBJECT_ID: '#/components/schemas/UMHierObjectId'
+          OBJECT_VERSION_ID: '#/components/schemas/UMObjectVersionId'
+    ArchetypeId:
+      title: ARCHETYPE_ID
+      type: object
+      properties:
+        _type:
           type: string
-          format: date
-      x-discriminator-value: DV_DATE
-      examples:
-      - _type: DV_DATE
-        value: '2017-08-15'
-    UMDvCount:
-      title: DV_COUNT
+          default: ARCHETYPE_ID
+        value:
+          type: string
+      x-discriminator-value: ARCHETYPE_ID
       required:
-      - magnitude
+      - value
+    UMGenericId:
+      title: GENERIC_ID
+      required:
+      - value
+      - scheme
       - _type
       type: object
       properties:
         _type:
           enum:
-          - DV_COUNT
+          - GENERIC_ID
+          type: string
+        value:
+          type: string
+        scheme:
+          type: string
+      x-discriminator-value: GENERIC_ID
+      examples:
+      - _type: GENERIC_ID
+        value: c7ec861c-c413-39ff-9965-a198ebf44747
+        scheme: pid
+    TerminologyId:
+      title: TERMINOLOGY_ID
+      type: object
+      properties:
+        _type:
+          type: string
+          default: TERMINOLOGY_ID
+        value:
+          type: string
+      x-discriminator-value: TERMINOLOGY_ID
+      required:
+      - value
+    UPartyProxy:
+      title: PARTY_PROXY
+      oneOf:
+      - $ref: '#/components/schemas/UMPartySelf'
+      - $ref: '#/components/schemas/UMPartyIdentified'
+      discriminator:
+        propertyName: _type
+        mapping:
+          PARTY_SELF: '#/components/schemas/UMPartySelf'
+          PARTY_IDENTIFIED: '#/components/schemas/UMPartyIdentified'
+          PARTY_RELATED: '#/components/schemas/UMPartyRelated'
+    UMDvQuantity:
+      title: DV_QUANTITY
+      required:
+      - magnitude
+      - units
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_QUANTITY
           type: string
         magnitude:
+          type: number
+        precision:
           type: integer
-      x-discriminator-value: DV_COUNT
+        units:
+          type: string
+        units_system:
+          type: string
+        units_display_name:
+          type: string
+      x-discriminator-value: DV_QUANTITY
+    UMHierObjectId:
+      title: HIER_OBJECT_ID
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - HIER_OBJECT_ID
+          type: string
+        value:
+          type: string
+          format: uuid
+          examples:
+          - 6cb19121-4307-4648-9da0-d62e4d51f19b
+      x-discriminator-value: HIER_OBJECT_ID
+      examples:
+      - _type: HIER_OBJECT_ID
+        value: 6cb19121-4307-4648-9da0-d62e4d51f19b
+    Clstr:
+      title: CLUSTER
+      required:
+      - name
+      - archetype_node_id
+      - items
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/UDvText'
+        archetype_node_id:
+          type: string
+          xml:
+            attribute: true
+        uid:
+          $ref: '#/components/schemas/UUidBasedId'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        archetype_details:
+          $ref: '#/components/schemas/Archetyped'
+        feeder_audit:
+          $ref: '#/components/schemas/FeederAudit'
+        _type:
+          type: string
+          default: CLUSTER
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UItem'
+      x-discriminator-value: CLUSTER
+    UMDvDuration:
+      title: DV_DURATION
+      required:
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_DURATION
+          type: string
+      x-discriminator-value: DV_DURATION
+    UMPartyIdentified:
+      title: PARTY_IDENTIFIED
+      required:
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - PARTY_IDENTIFIED
+          type: string
+        external_ref:
+          $ref: '#/components/schemas/PartyRef'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/DvIdentifier'
+      x-discriminator-value: PARTY_IDENTIFIED
+      examples:
+      - _type: PARTY_IDENTIFIED
+        external_ref:
+          id:
+            _type: GENERIC_ID
+            value: 16b74749-e6aa-4945-b760-b42bdc07098a
+            scheme: pid
+          namespace: cataniamc.prod.cadasto.com
+          type: PERSON
+    UMDvOrdinal:
+      title: DV_ORDINAL
+      required:
+      - symbol
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_ORDINAL
+          type: string
+        symbol:
+          $ref: '#/components/schemas/DvCodedText'
+        value:
+          type: integer
+      x-discriminator-value: DV_ORDINAL
+    UMDvMultimedia:
+      title: DV_MULTIMEDIA
+      required:
+      - _type
+      - media_type
+      - size
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_MULTIMEDIA
+          type: string
+        charset:
+          $ref: '#/components/schemas/CodePhrase'
+        language:
+          $ref: '#/components/schemas/CodePhrase'
+        alternate_text:
+          type: string
+        uri:
+          $ref: '#/components/schemas/UDvUri'
+        data:
+          type: string
+        media_type:
+          $ref: '#/components/schemas/CodePhrase'
+        compression_algorithm:
+          $ref: '#/components/schemas/CodePhrase'
+        integrity_check:
+          type: string
+        integrity_check_algorithm:
+          $ref: '#/components/schemas/CodePhrase'
+        thumbnail:
+          $ref: '#/components/schemas/DvMultimedia'
+        size:
+          type: integer
+      x-discriminator-value: DV_MULTIMEDIA
+    UObjectId:
+      title: OBJECT_ID
+      oneOf:
+      - $ref: '#/components/schemas/UMArchetypeId'
+      - $ref: '#/components/schemas/UMTemplateId'
+      - $ref: '#/components/schemas/UMTerminologyId'
+      - $ref: '#/components/schemas/UMGenericId'
+      - $ref: '#/components/schemas/UMHierObjectId'
+      - $ref: '#/components/schemas/UMObjectVersionId'
+      discriminator:
+        propertyName: _type
+        mapping:
+          ARCHETYPE_ID: '#/components/schemas/UMArchetypeId'
+          TEMPLATE_ID: '#/components/schemas/UMTemplateId'
+          TERMINOLOGY_ID: '#/components/schemas/UMTerminologyId'
+          GENERIC_ID: '#/components/schemas/UMGenericId'
+          HIER_OBJECT_ID: '#/components/schemas/UMHierObjectId'
+          OBJECT_VERSION_ID: '#/components/schemas/UMObjectVersionId'
+    UMDvText:
+      title: DV_TEXT
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_TEXT
+          type: string
+        value:
+          type: string
+        hyperlink:
+          $ref: '#/components/schemas/UDvUri'
+        formatting:
+          type: string
+        mappings:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermMapping'
+        language:
+          $ref: '#/components/schemas/CodePhrase'
+        encoding:
+          $ref: '#/components/schemas/CodePhrase'
+      x-discriminator-value: DV_TEXT
+    DvIdentifier:
+      title: DV_IDENTIFIER
+      required:
+      - id
+      type: object
+      properties:
+        issuer:
+          type: string
+        assigner:
+          type: string
+        id:
+          type: string
+        type:
+          type: string
+      description: 'Type for representing identifiers of real-world entities. Typical identifiers include drivers licence number, social security number, veterans affairs number, prescription id, order id, and so on.
+
+
+        DV_IDENTIFIER is used to represent any identifier of a real thing, issued by some authority or agency.
+
+        '
+      x-discriminator-value: DV_IDENTIFIER
+      examples:
+      - id: 16b74749-e6aa-4945-b760-b42bdc07098a
+        type: Patient
+    UDvEncapsulated:
+      title: DV_ENCAPSULATED
+      oneOf:
+      - $ref: '#/components/schemas/UMDvMultimedia'
+      - $ref: '#/components/schemas/UMDvParsable'
+      discriminator:
+        propertyName: _type
+        mapping:
+          DV_MULTIMEDIA: '#/components/schemas/UMDvMultimedia'
+          DV_PARSABLE: '#/components/schemas/UMDvParsable'
+    UMDvDateTime:
+      title: DV_DATE_TIME
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_DATE_TIME
+          type: string
+        value:
+          type: string
+          format: date-time
+      x-discriminator-value: DV_DATE_TIME
+      examples:
+      - _type: DV_DATE_TIME
+        value: '2017-08-15T10:37:15.422+02:00'
+    UDvUri:
+      title: DV_URI
+      oneOf:
+      - $ref: '#/components/schemas/UMDvUri'
+      - $ref: '#/components/schemas/UMDvEhrUri'
+      discriminator:
+        propertyName: _type
+        mapping:
+          DV_URI: '#/components/schemas/UMDvUri'
+          DV_EHR_URI: '#/components/schemas/UMDvEhrUri'
+      examples:
+      - _type: DV_URI
+        value: https://www.example.com
+    FeederAuditDetails:
+      title: FEEDER_AUDIT_DETAILS
+      required:
+      - system_id
+      type: object
+      properties:
+        system_id:
+          type: string
+        location:
+          $ref: '#/components/schemas/UPartyIdentified'
+        subject:
+          $ref: '#/components/schemas/UPartyProxy'
+        provider:
+          $ref: '#/components/schemas/UPartyIdentified'
+        time:
+          $ref: '#/components/schemas/DvDateTime'
+        version_id:
+          type: string
+        other_details:
+          $ref: '#/components/schemas/UItemStructure'
+    UMTerminologyId:
+      title: TERMINOLOGY_ID
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - TERMINOLOGY_ID
+          type: string
+        value:
+          type: string
+      x-discriminator-value: TERMINOLOGY_ID
     Folder:
       title: FOLDER
       type: object
@@ -247,8 +694,30 @@ components:
           value: 8849182c-82ad-4088-a07f-48ead4180515::cataniamc.prod.cadasto.com::1
         items: []
         folders: []
-    UMObjectVersionId:
-      title: OBJECT_VERSION_ID
+    UMDvProportion:
+      title: DV_PROPORTION
+      required:
+      - numerator
+      - denominator
+      - semantic_type
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_PROPORTION
+          type: string
+        numerator:
+          type: number
+        denominator:
+          type: number
+        semantic_type:
+          type: integer
+        precision:
+          type: integer
+      x-discriminator-value: DV_PROPORTION
+    UMArchetypeId:
+      title: ARCHETYPE_ID
       required:
       - value
       - _type
@@ -256,126 +725,55 @@ components:
       properties:
         _type:
           enum:
-          - OBJECT_VERSION_ID
+          - ARCHETYPE_ID
           type: string
         value:
           type: string
-          examples:
-          - 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
-      x-discriminator-value: OBJECT_VERSION_ID
-      examples:
-      - _type: OBJECT_VERSION_ID
-        value: 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
-    UMHierObjectId:
-      title: HIER_OBJECT_ID
+      x-discriminator-value: ARCHETYPE_ID
+    UMDvCount:
+      title: DV_COUNT
       required:
-      - value
+      - magnitude
       - _type
       type: object
       properties:
         _type:
           enum:
-          - HIER_OBJECT_ID
+          - DV_COUNT
           type: string
-        value:
-          type: string
-          format: uuid
-          examples:
-          - 6cb19121-4307-4648-9da0-d62e4d51f19b
-      x-discriminator-value: HIER_OBJECT_ID
-      examples:
-      - _type: HIER_OBJECT_ID
-        value: 6cb19121-4307-4648-9da0-d62e4d51f19b
-    UMDvText:
+        magnitude:
+          type: integer
+      x-discriminator-value: DV_COUNT
+    UDvText:
       title: DV_TEXT
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_TEXT
-          type: string
-        value:
-          type: string
-        hyperlink:
-          $ref: '#/components/schemas/UDvUri'
-        formatting:
-          type: string
-        mappings:
-          type: array
-          items:
-            $ref: '#/components/schemas/TermMapping'
-        language:
-          $ref: '#/components/schemas/CodePhrase'
-        encoding:
-          $ref: '#/components/schemas/CodePhrase'
-      x-discriminator-value: DV_TEXT
-    UItem:
-      title: ITEM
       oneOf:
-      - $ref: '#/components/schemas/Element'
-      - $ref: '#/components/schemas/Clstr'
+      - $ref: '#/components/schemas/UMDvText'
+      - $ref: '#/components/schemas/UMDvCodedText'
       discriminator:
         propertyName: _type
         mapping:
-          ELEMENT: '#/components/schemas/Element'
-          CLUSTER: '#/components/schemas/Clstr'
-    DvMultimedia:
-      title: DV_MULTIMEDIA
-      required:
-      - _type
-      - media_type
-      - size
+          DV_TEXT: '#/components/schemas/UMDvText'
+          DV_CODED_TEXT: '#/components/schemas/UMDvCodedText'
+      examples:
+      - _type: DV_TEXT
+        value: Text value
+    DvEhrUri:
+      title: DV_EHR_URI
       type: object
       properties:
         _type:
           type: string
-          default: DV_MULTIMEDIA
-        charset:
-          $ref: '#/components/schemas/CodePhrase'
-        language:
-          $ref: '#/components/schemas/CodePhrase'
-        alternate_text:
-          type: string
-        uri:
-          $ref: '#/components/schemas/UDvUri'
-        data:
-          type: string
-        media_type:
-          $ref: '#/components/schemas/CodePhrase'
-        compression_algorithm:
-          $ref: '#/components/schemas/CodePhrase'
-        integrity_check:
-          type: string
-        integrity_check_algorithm:
-          $ref: '#/components/schemas/CodePhrase'
-        thumbnail:
-          $ref: '#/components/schemas/DvMultimedia'
-        size:
-          type: integer
-      x-discriminator-value: DV_MULTIMEDIA
-    UMTemplateId:
-      title: TEMPLATE_ID
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - TEMPLATE_ID
-          type: string
+          default: DV_EHR_URI
         value:
           type: string
-      x-discriminator-value: TEMPLATE_ID
-    Clstr:
-      title: CLUSTER
+      x-discriminator-value: DV_EHR_URI
       required:
-      - name
-      - archetype_node_id
-      - items
+      - value
+      examples:
+      - _type: DV_EHR_URI
+        value: ehr://system_id/ehr_id/top_level_structure_locator/path_inside_top_level_structure
+    Element:
+      title: ELEMENT
       type: object
       properties:
         name:
@@ -396,264 +794,35 @@ components:
           $ref: '#/components/schemas/FeederAudit'
         _type:
           type: string
-          default: CLUSTER
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UItem'
-      x-discriminator-value: CLUSTER
-    DvDateTime:
-      title: DV_DATE_TIME
-      required:
-      - value
-      type: object
-      properties:
-        _type:
-          type: string
-          default: DV_DATE_TIME
-        value:
-          type: string
-          format: date-time
-      x-discriminator-value: DV_DATE_TIME
-      examples:
-      - _type: DV_DATE_TIME
-        value: '2017-08-15T10:37:15.422+02:00'
-    UMDvBoolean:
-      title: DV_BOOLEAN
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_BOOLEAN
-          type: string
-        value:
-          type: boolean
-      x-discriminator-value: DV_BOOLEAN
-    DvIdentifier:
-      title: DV_IDENTIFIER
-      required:
-      - id
-      type: object
-      properties:
-        issuer:
-          type: string
-        assigner:
-          type: string
-        id:
-          type: string
-        type:
-          type: string
-      description: 'Type for representing identifiers of real-world entities. Typical identifiers include drivers licence number, social security number, veterans affairs number, prescription id, order id, and so on.
-
-
-        DV_IDENTIFIER is used to represent any identifier of a real thing, issued by some authority or agency.
-
-        '
-      x-discriminator-value: DV_IDENTIFIER
-      examples:
-      - id: 16b74749-e6aa-4945-b760-b42bdc07098a
-        type: Patient
-    TermMapping:
-      title: TERM_MAPPING
-      required:
-      - match
-      - target
-      type: object
-      properties:
-        match:
-          pattern: /^[><=?]$/
-          type: string
-        purpose:
-          $ref: '#/components/schemas/DvCodedText'
-        target:
-          $ref: '#/components/schemas/CodePhrase'
-    UUidBasedId:
-      title: UID_BASED_ID
-      oneOf:
-      - $ref: '#/components/schemas/UMHierObjectId'
-      - $ref: '#/components/schemas/UMObjectVersionId'
-      discriminator:
-        propertyName: _type
-        mapping:
-          HIER_OBJECT_ID: '#/components/schemas/UMHierObjectId'
-          OBJECT_VERSION_ID: '#/components/schemas/UMObjectVersionId'
-    UMDvUri:
-      title: DV_URI
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_URI
-          type: string
-        value:
-          type: string
-      x-discriminator-value: DV_URI
-    UMDvMultimedia:
-      title: DV_MULTIMEDIA
-      required:
-      - _type
-      - media_type
-      - size
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_MULTIMEDIA
-          type: string
-        charset:
-          $ref: '#/components/schemas/CodePhrase'
-        language:
-          $ref: '#/components/schemas/CodePhrase'
-        alternate_text:
-          type: string
-        uri:
-          $ref: '#/components/schemas/UDvUri'
-        data:
-          type: string
-        media_type:
-          $ref: '#/components/schemas/CodePhrase'
-        compression_algorithm:
-          $ref: '#/components/schemas/CodePhrase'
-        integrity_check:
-          type: string
-        integrity_check_algorithm:
-          $ref: '#/components/schemas/CodePhrase'
-        thumbnail:
-          $ref: '#/components/schemas/DvMultimedia'
-        size:
-          type: integer
-      x-discriminator-value: DV_MULTIMEDIA
-    CodePhrase:
-      title: CODE_PHRASE
-      required:
-      - terminology_id
-      - code_string
-      type: object
-      properties:
-        terminology_id:
-          $ref: '#/components/schemas/TerminologyId'
-        code_string:
-          type: string
-        preferred_term:
-          type: string
-      examples:
-      - terminology_id:
-          value: local
-        code_string: at0001
-    UMDvDateTime:
-      title: DV_DATE_TIME
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_DATE_TIME
-          type: string
-        value:
-          type: string
-          format: date-time
-      x-discriminator-value: DV_DATE_TIME
-      examples:
-      - _type: DV_DATE_TIME
-        value: '2017-08-15T10:37:15.422+02:00'
-    TemplateId:
-      title: TEMPLATE_ID
-      type: object
-      properties:
-        _type:
-          type: string
-          default: TEMPLATE_ID
-        value:
-          type: string
-      x-discriminator-value: TEMPLATE_ID
-      required:
-      - value
-    UMGenericId:
-      title: GENERIC_ID
-      required:
-      - value
-      - scheme
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - GENERIC_ID
-          type: string
-        value:
-          type: string
-        scheme:
-          type: string
-      x-discriminator-value: GENERIC_ID
-      examples:
-      - _type: GENERIC_ID
-        value: c7ec861c-c413-39ff-9965-a198ebf44747
-        scheme: pid
-    ArchetypeId:
-      title: ARCHETYPE_ID
-      type: object
-      properties:
-        _type:
-          type: string
-          default: ARCHETYPE_ID
-        value:
-          type: string
-      x-discriminator-value: ARCHETYPE_ID
-      required:
-      - value
-    UObjectId:
-      title: OBJECT_ID
-      oneOf:
-      - $ref: '#/components/schemas/UMArchetypeId'
-      - $ref: '#/components/schemas/UMTemplateId'
-      - $ref: '#/components/schemas/UMTerminologyId'
-      - $ref: '#/components/schemas/UMGenericId'
-      - $ref: '#/components/schemas/UMHierObjectId'
-      - $ref: '#/components/schemas/UMObjectVersionId'
-      discriminator:
-        propertyName: _type
-        mapping:
-          ARCHETYPE_ID: '#/components/schemas/UMArchetypeId'
-          TEMPLATE_ID: '#/components/schemas/UMTemplateId'
-          TERMINOLOGY_ID: '#/components/schemas/UMTerminologyId'
-          GENERIC_ID: '#/components/schemas/UMGenericId'
-          HIER_OBJECT_ID: '#/components/schemas/UMHierObjectId'
-          OBJECT_VERSION_ID: '#/components/schemas/UMObjectVersionId'
-    UMDvOrdinal:
-      title: DV_ORDINAL
-      required:
-      - symbol
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_ORDINAL
-          type: string
-        symbol:
+          default: ELEMENT
+        null_flavour:
           $ref: '#/components/schemas/DvCodedText'
         value:
-          type: integer
-      x-discriminator-value: DV_ORDINAL
-    UDvEncapsulated:
-      title: DV_ENCAPSULATED
-      oneOf:
-      - $ref: '#/components/schemas/UMDvMultimedia'
-      - $ref: '#/components/schemas/UMDvParsable'
-      discriminator:
-        propertyName: _type
-        mapping:
-          DV_MULTIMEDIA: '#/components/schemas/UMDvMultimedia'
-          DV_PARSABLE: '#/components/schemas/UMDvParsable'
+          $ref: '#/components/schemas/UDataValue'
+        null_reason:
+          $ref: '#/components/schemas/UDvText'
+      x-discriminator-value: ELEMENT
+      required:
+      - name
+      - archetype_node_id
+    UMDvDate:
+      title: DV_DATE
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_DATE
+          type: string
+        value:
+          type: string
+          format: date
+      x-discriminator-value: DV_DATE
+      examples:
+      - _type: DV_DATE
+        value: '2017-08-15'
     UDataValue:
       title: DATA_VALUE
       oneOf:
@@ -695,259 +864,8 @@ components:
           DV_TEXT: '#/components/schemas/UMDvText'
           DV_TIME: '#/components/schemas/UMDvTime'
           DV_URI: '#/components/schemas/UMDvUri'
-    ItemTable:
-      title: ITEM_TABLE
-      type: object
-      properties:
-        name:
-          $ref: '#/components/schemas/UDvText'
-        archetype_node_id:
-          type: string
-          xml:
-            attribute: true
-        uid:
-          $ref: '#/components/schemas/UUidBasedId'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-        archetype_details:
-          $ref: '#/components/schemas/Archetyped'
-        feeder_audit:
-          $ref: '#/components/schemas/FeederAudit'
-        _type:
-          type: string
-          default: ITEM_TABLE
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Clstr'
-      x-discriminator-value: ITEM_TABLE
-      required:
-      - name
-      - archetype_node_id
-    UDvText:
-      title: DV_TEXT
-      oneOf:
-      - $ref: '#/components/schemas/UMDvText'
-      - $ref: '#/components/schemas/UMDvCodedText'
-      discriminator:
-        propertyName: _type
-        mapping:
-          DV_TEXT: '#/components/schemas/UMDvText'
-          DV_CODED_TEXT: '#/components/schemas/UMDvCodedText'
-      examples:
-      - _type: DV_TEXT
-        value: Text value
-    UMPartyIdentified:
-      title: PARTY_IDENTIFIED
-      required:
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - PARTY_IDENTIFIED
-          type: string
-        external_ref:
-          $ref: '#/components/schemas/PartyRef'
-        identifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/DvIdentifier'
-      x-discriminator-value: PARTY_IDENTIFIED
-      examples:
-      - _type: PARTY_IDENTIFIED
-        external_ref:
-          id:
-            _type: GENERIC_ID
-            value: 16b74749-e6aa-4945-b760-b42bdc07098a
-            scheme: pid
-          namespace: cataniamc.prod.cadasto.com
-          type: PERSON
-    UMDvDuration:
-      title: DV_DURATION
-      required:
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_DURATION
-          type: string
-      x-discriminator-value: DV_DURATION
-    Link:
-      title: LINK
-      required:
-      - meaning
-      - type
-      - target
-      type: object
-      properties:
-        meaning:
-          $ref: '#/components/schemas/UDvText'
-        type:
-          $ref: '#/components/schemas/UDvText'
-        target:
-          $ref: '#/components/schemas/DvEhrUri'
-    UMDvScale:
-      title: DV_SCALE
-      required:
-      - symbol
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_SCALE
-          type: string
-        symbol:
-          $ref: '#/components/schemas/DvCodedText'
-        value:
-          type: number
-      x-discriminator-value: DV_SCALE
-    Archetyped:
-      title: ARCHETYPED
-      required:
-      - archetype_id
-      - rm_version
-      type: object
-      properties:
-        archetype_id:
-          $ref: '#/components/schemas/ArchetypeId'
-        template_id:
-          $ref: '#/components/schemas/TemplateId'
-        rm_version:
-          type: string
-      additionalProperties: false
-      examples:
-      - archetype_id:
-          value: openEHR-EHR-COMPOSITION.encounter.v1
-        template_id:
-          value: Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747
-        rm_version: 1.0.2
-    TerminologyId:
-      title: TERMINOLOGY_ID
-      type: object
-      properties:
-        _type:
-          type: string
-          default: TERMINOLOGY_ID
-        value:
-          type: string
-      x-discriminator-value: TERMINOLOGY_ID
-      required:
-      - value
-    UPartyIdentified:
-      title: PARTY_IDENTIFIED
-      oneOf:
-      - $ref: '#/components/schemas/UMPartyIdentified'
-      discriminator:
-        propertyName: _type
-        mapping:
-          PARTY_IDENTIFIED: '#/components/schemas/UMPartyIdentified'
-          PARTY_RELATED: '#/components/schemas/UMPartyRelated'
-    UItemStructure:
-      title: ITEM_STRUCTURE
-      oneOf:
-      - $ref: '#/components/schemas/ItemSingle'
-      - $ref: '#/components/schemas/ItemList'
-      - $ref: '#/components/schemas/ItemTable'
-      - $ref: '#/components/schemas/ItemTree'
-      discriminator:
-        propertyName: _type
-        mapping:
-          ITEM_SINGLE: '#/components/schemas/ItemSingle'
-          ITEM_LIST: '#/components/schemas/ItemList'
-          ITEM_TABLE: '#/components/schemas/ItemTable'
-          ITEM_TREE: '#/components/schemas/ItemTree'
-    ObjectRef:
-      title: OBJECT_REF
-      required:
-      - namespace
-      - type
-      - id
-      type: object
-      properties:
-        namespace:
-          type: string
-        type:
-          type: string
-        id:
-          $ref: '#/components/schemas/UObjectId'
-      examples:
-      - id:
-          _type: OBJECT_VERSION_ID
-          value: fb458d9c-1323-42bc-b7f8-787f3660a0b5::cataniamc.prod.cadasto.com::1
-        namespace: local
-        type: COMPOSITION
-    DvCodedText:
-      title: DV_CODED_TEXT
-      required:
-      - value
-      - defining_code
-      type: object
-      properties:
-        _type:
-          type: string
-          default: DV_CODED_TEXT
-        value:
-          type: string
-        hyperlink:
-          $ref: '#/components/schemas/UDvUri'
-        formatting:
-          type: string
-        mappings:
-          type: array
-          items:
-            $ref: '#/components/schemas/TermMapping'
-        language:
-          $ref: '#/components/schemas/CodePhrase'
-        encoding:
-          $ref: '#/components/schemas/CodePhrase'
-        defining_code:
-          $ref: '#/components/schemas/CodePhrase'
-      x-discriminator-value: DV_CODED_TEXT
-      examples:
-      - value: Coded text value
-        defining_code:
-          terminology_id:
-            value: local
-          code_string: at0001
-    ItemTree:
-      title: ITEM_TREE
-      type: object
-      properties:
-        name:
-          $ref: '#/components/schemas/UDvText'
-        archetype_node_id:
-          type: string
-          xml:
-            attribute: true
-        uid:
-          $ref: '#/components/schemas/UUidBasedId'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-        archetype_details:
-          $ref: '#/components/schemas/Archetyped'
-        feeder_audit:
-          $ref: '#/components/schemas/FeederAudit'
-        _type:
-          type: string
-          default: ITEM_TREE
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UItem'
-      x-discriminator-value: ITEM_TREE
-      required:
-      - name
-      - archetype_node_id
-    UMDvEhrUri:
-      title: DV_EHR_URI
+    UMObjectVersionId:
+      title: OBJECT_VERSION_ID
       required:
       - value
       - _type
@@ -955,82 +873,16 @@ components:
       properties:
         _type:
           enum:
-          - DV_EHR_URI
+          - OBJECT_VERSION_ID
           type: string
         value:
           type: string
-      x-discriminator-value: DV_EHR_URI
+          examples:
+          - 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
+      x-discriminator-value: OBJECT_VERSION_ID
       examples:
-      - _type: DV_EHR_URI
-        value: ehr://system_id/ehr_id/top_level_structure_locator/path_inside_top_level_structure
-    UDvUri:
-      title: DV_URI
-      oneOf:
-      - $ref: '#/components/schemas/UMDvUri'
-      - $ref: '#/components/schemas/UMDvEhrUri'
-      discriminator:
-        propertyName: _type
-        mapping:
-          DV_URI: '#/components/schemas/UMDvUri'
-          DV_EHR_URI: '#/components/schemas/UMDvEhrUri'
-      examples:
-      - _type: DV_URI
-        value: https://www.example.com
-    UMDvParsable:
-      title: DV_PARSABLE
-      required:
-      - _type
-      - value
-      - formalism
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_PARSABLE
-          type: string
-        charset:
-          $ref: '#/components/schemas/CodePhrase'
-        language:
-          $ref: '#/components/schemas/CodePhrase'
-        value:
-          type: string
-        formalism:
-          type: string
-      x-discriminator-value: DV_PARSABLE
-    UMTerminologyId:
-      title: TERMINOLOGY_ID
-      required:
-      - value
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - TERMINOLOGY_ID
-          type: string
-        value:
-          type: string
-      x-discriminator-value: TERMINOLOGY_ID
-    FeederAudit:
-      title: FEEDER_AUDIT
-      required:
-      - originating_system_audit
-      type: object
-      properties:
-        originating_system_item_ids:
-          type: array
-          items:
-            $ref: '#/components/schemas/DvIdentifier'
-        feeder_system_item_ids:
-          type: array
-          items:
-            $ref: '#/components/schemas/DvIdentifier'
-        original_content:
-          $ref: '#/components/schemas/UDvEncapsulated'
-        originating_system_audit:
-          $ref: '#/components/schemas/FeederAuditDetails'
-        feeder_system_audit:
-          $ref: '#/components/schemas/FeederAuditDetails'
+      - _type: OBJECT_VERSION_ID
+        value: 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
     UMDvCodedText:
       title: DV_CODED_TEXT
       required:
@@ -1066,137 +918,34 @@ components:
           terminology_id:
             value: local
           code_string: at0001
-    UMDvQuantity:
-      title: DV_QUANTITY
-      required:
-      - magnitude
-      - units
-      - _type
-      type: object
-      properties:
-        _type:
-          enum:
-          - DV_QUANTITY
-          type: string
-        magnitude:
-          type: number
-        precision:
-          type: integer
-        units:
-          type: string
-        units_system:
-          type: string
-        units_display_name:
-          type: string
-      x-discriminator-value: DV_QUANTITY
-    FeederAuditDetails:
-      title: FEEDER_AUDIT_DETAILS
-      required:
-      - system_id
-      type: object
-      properties:
-        system_id:
-          type: string
-        location:
-          $ref: '#/components/schemas/UPartyIdentified'
-        subject:
-          $ref: '#/components/schemas/UPartyProxy'
-        provider:
-          $ref: '#/components/schemas/UPartyIdentified'
-        time:
-          $ref: '#/components/schemas/DvDateTime'
-        version_id:
-          type: string
-        other_details:
-          $ref: '#/components/schemas/UItemStructure'
-    Element:
-      title: ELEMENT
-      type: object
-      properties:
-        name:
-          $ref: '#/components/schemas/UDvText'
-        archetype_node_id:
-          type: string
-          xml:
-            attribute: true
-        uid:
-          $ref: '#/components/schemas/UUidBasedId'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-        archetype_details:
-          $ref: '#/components/schemas/Archetyped'
-        feeder_audit:
-          $ref: '#/components/schemas/FeederAudit'
-        _type:
-          type: string
-          default: ELEMENT
-        null_flavour:
-          $ref: '#/components/schemas/DvCodedText'
-        value:
-          $ref: '#/components/schemas/UDataValue'
-        null_reason:
-          $ref: '#/components/schemas/UDvText'
-      x-discriminator-value: ELEMENT
-      required:
-      - name
-      - archetype_node_id
-    UMDvIdentifier:
-      title: DV_IDENTIFIER
-      required:
-      - id
-      - _type
-      type: object
-      properties:
-        issuer:
-          type: string
-        assigner:
-          type: string
-        id:
-          type: string
-        type:
-          type: string
-        _type:
-          enum:
-          - DV_IDENTIFIER
-          type: string
-      x-discriminator-value: DV_IDENTIFIER
-      examples:
-      - id: 16b74749-e6aa-4945-b760-b42bdc07098a
-        type: Patient
-    DvEhrUri:
-      title: DV_EHR_URI
-      type: object
-      properties:
-        _type:
-          type: string
-          default: DV_EHR_URI
-        value:
-          type: string
-      x-discriminator-value: DV_EHR_URI
-      required:
-      - value
-      examples:
-      - _type: DV_EHR_URI
-        value: ehr://system_id/ehr_id/top_level_structure_locator/path_inside_top_level_structure
-    UPartyProxy:
-      title: PARTY_PROXY
+    UPartyIdentified:
+      title: PARTY_IDENTIFIED
       oneOf:
-      - $ref: '#/components/schemas/UMPartySelf'
       - $ref: '#/components/schemas/UMPartyIdentified'
       discriminator:
         propertyName: _type
         mapping:
-          PARTY_SELF: '#/components/schemas/UMPartySelf'
           PARTY_IDENTIFIED: '#/components/schemas/UMPartyIdentified'
           PARTY_RELATED: '#/components/schemas/UMPartyRelated'
-    ItemSingle:
-      title: ITEM_SINGLE
+    CodePhrase:
+      title: CODE_PHRASE
       required:
-      - name
-      - archetype_node_id
-      - item
+      - terminology_id
+      - code_string
+      type: object
+      properties:
+        terminology_id:
+          $ref: '#/components/schemas/TerminologyId'
+        code_string:
+          type: string
+        preferred_term:
+          type: string
+      examples:
+      - terminology_id:
+          value: local
+        code_string: at0001
+    ItemTable:
+      title: ITEM_TABLE
       type: object
       properties:
         name:
@@ -1217,10 +966,80 @@ components:
           $ref: '#/components/schemas/FeederAudit'
         _type:
           type: string
-          default: ITEM_SINGLE
-        item:
-          $ref: '#/components/schemas/Element'
-      x-discriminator-value: ITEM_SINGLE
+          default: ITEM_TABLE
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Clstr'
+      x-discriminator-value: ITEM_TABLE
+      required:
+      - name
+      - archetype_node_id
+    DvCodedText:
+      title: DV_CODED_TEXT
+      required:
+      - value
+      - defining_code
+      type: object
+      properties:
+        _type:
+          type: string
+          default: DV_CODED_TEXT
+        value:
+          type: string
+        hyperlink:
+          $ref: '#/components/schemas/UDvUri'
+        formatting:
+          type: string
+        mappings:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermMapping'
+        language:
+          $ref: '#/components/schemas/CodePhrase'
+        encoding:
+          $ref: '#/components/schemas/CodePhrase'
+        defining_code:
+          $ref: '#/components/schemas/CodePhrase'
+      x-discriminator-value: DV_CODED_TEXT
+      examples:
+      - value: Coded text value
+        defining_code:
+          terminology_id:
+            value: local
+          code_string: at0001
+    TemplateId:
+      title: TEMPLATE_ID
+      type: object
+      properties:
+        _type:
+          type: string
+          default: TEMPLATE_ID
+        value:
+          type: string
+      x-discriminator-value: TEMPLATE_ID
+      required:
+      - value
+    Archetyped:
+      title: ARCHETYPED
+      required:
+      - archetype_id
+      - rm_version
+      type: object
+      properties:
+        archetype_id:
+          $ref: '#/components/schemas/ArchetypeId'
+        template_id:
+          $ref: '#/components/schemas/TemplateId'
+        rm_version:
+          type: string
+      additionalProperties: false
+      examples:
+      - archetype_id:
+          value: openEHR-EHR-COMPOSITION.encounter.v1
+        template_id:
+          value: Example.v1::c7ec861c-c413-39ff-9965-a198ebf44747
+        rm_version: 1.0.2
     ItemList:
       title: ITEM_LIST
       type: object
@@ -1252,8 +1071,95 @@ components:
       required:
       - name
       - archetype_node_id
-    UMArchetypeId:
-      title: ARCHETYPE_ID
+    UMDvScale:
+      title: DV_SCALE
+      required:
+      - symbol
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_SCALE
+          type: string
+        symbol:
+          $ref: '#/components/schemas/DvCodedText'
+        value:
+          type: number
+      x-discriminator-value: DV_SCALE
+    DvDateTime:
+      title: DV_DATE_TIME
+      required:
+      - value
+      type: object
+      properties:
+        _type:
+          type: string
+          default: DV_DATE_TIME
+        value:
+          type: string
+          format: date-time
+      x-discriminator-value: DV_DATE_TIME
+      examples:
+      - _type: DV_DATE_TIME
+        value: '2017-08-15T10:37:15.422+02:00'
+    ObjectRef:
+      title: OBJECT_REF
+      required:
+      - namespace
+      - type
+      - id
+      type: object
+      properties:
+        namespace:
+          type: string
+        type:
+          type: string
+        id:
+          $ref: '#/components/schemas/UObjectId'
+      examples:
+      - id:
+          _type: OBJECT_VERSION_ID
+          value: fb458d9c-1323-42bc-b7f8-787f3660a0b5::cataniamc.prod.cadasto.com::1
+        namespace: local
+        type: COMPOSITION
+    FeederAudit:
+      title: FEEDER_AUDIT
+      required:
+      - originating_system_audit
+      type: object
+      properties:
+        originating_system_item_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/DvIdentifier'
+        feeder_system_item_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/DvIdentifier'
+        original_content:
+          $ref: '#/components/schemas/UDvEncapsulated'
+        originating_system_audit:
+          $ref: '#/components/schemas/FeederAuditDetails'
+        feeder_system_audit:
+          $ref: '#/components/schemas/FeederAuditDetails'
+    TermMapping:
+      title: TERM_MAPPING
+      required:
+      - match
+      - target
+      type: object
+      properties:
+        match:
+          pattern: /^[><=?]$/
+          type: string
+        purpose:
+          $ref: '#/components/schemas/DvCodedText'
+        target:
+          $ref: '#/components/schemas/CodePhrase'
+    UMDvEhrUri:
+      title: DV_EHR_URI
       required:
       - value
       - _type
@@ -1261,49 +1167,140 @@ components:
       properties:
         _type:
           enum:
-          - ARCHETYPE_ID
+          - DV_EHR_URI
           type: string
         value:
           type: string
-      x-discriminator-value: ARCHETYPE_ID
-    UMDvProportion:
-      title: DV_PROPORTION
+      x-discriminator-value: DV_EHR_URI
+      examples:
+      - _type: DV_EHR_URI
+        value: ehr://system_id/ehr_id/top_level_structure_locator/path_inside_top_level_structure
+    Link:
+      title: LINK
       required:
-      - numerator
-      - denominator
-      - semantic_type
+      - meaning
+      - type
+      - target
+      type: object
+      properties:
+        meaning:
+          $ref: '#/components/schemas/UDvText'
+        type:
+          $ref: '#/components/schemas/UDvText'
+        target:
+          $ref: '#/components/schemas/DvEhrUri'
+    UMTemplateId:
+      title: TEMPLATE_ID
+      required:
+      - value
       - _type
       type: object
       properties:
         _type:
           enum:
-          - DV_PROPORTION
+          - TEMPLATE_ID
           type: string
-        numerator:
-          type: number
-        denominator:
-          type: number
-        semantic_type:
-          type: integer
-        precision:
-          type: integer
-      x-discriminator-value: DV_PROPORTION
+        value:
+          type: string
+      x-discriminator-value: TEMPLATE_ID
+    UMDvState:
+      title: DV_STATE
+      required:
+      - value
+      - is_terminal
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_STATE
+          type: string
+        value:
+          $ref: '#/components/schemas/DvCodedText'
+        is_terminal:
+          type: boolean
+      x-discriminator-value: DV_STATE
+    UMDvUri:
+      title: DV_URI
+      required:
+      - value
+      - _type
+      type: object
+      properties:
+        _type:
+          enum:
+          - DV_URI
+          type: string
+        value:
+          type: string
+      x-discriminator-value: DV_URI
+    ItemTree:
+      title: ITEM_TREE
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/UDvText'
+        archetype_node_id:
+          type: string
+          xml:
+            attribute: true
+        uid:
+          $ref: '#/components/schemas/UUidBasedId'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        archetype_details:
+          $ref: '#/components/schemas/Archetyped'
+        feeder_audit:
+          $ref: '#/components/schemas/FeederAudit'
+        _type:
+          type: string
+          default: ITEM_TREE
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UItem'
+      x-discriminator-value: ITEM_TREE
+      required:
+      - name
+      - archetype_node_id
+    UMDvIdentifier:
+      title: DV_IDENTIFIER
+      required:
+      - id
+      - _type
+      type: object
+      properties:
+        issuer:
+          type: string
+        assigner:
+          type: string
+        id:
+          type: string
+        type:
+          type: string
+        _type:
+          enum:
+          - DV_IDENTIFIER
+          type: string
+      x-discriminator-value: DV_IDENTIFIER
+      examples:
+      - id: 16b74749-e6aa-4945-b760-b42bdc07098a
+        type: Patient
   responses:
+    204_because_deleted_at_time:
+      description: '`204 No Content` is returned when the resource identified by the request parameters (at specified `version_at_time`) time has been deleted.
+
+        '
+    404_directory_unknown_ehr_id_or_no_version_uid_or_no_path:
+      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist, or when a directory with `version_uid` does not exist, or when `path` does not exist within the directory.
+
+        '
     400_FOLDER:
       description: '`400 Bad Request` is returned when the request URL or body (if provided) could not be parsed or has invalid content (e.g. invalid `ehr_id`, or either the body of the request could not be read, or could not be converted to a valid FOLDER object).
 
         '
-    412_directory:
-      description: '`412 Precondition Failed` is returned when `If-Match` request header doesn''t match the latest version on the service side.
-
-        Returns also latest `version_uid` in the `Location` and `ETag` headers.
-
-        '
-      headers:
-        ETag:
-          $ref: '#/components/headers/ETag_FOLDER'
-        Location:
-          $ref: '#/components/headers/Location_directory'
     204_directory_updated:
       description: '`204 No Content` is returned when directory was updated and `Prefer` header is missing or is set to `return=minimal`.
 
@@ -1313,30 +1310,6 @@ components:
           $ref: '#/components/headers/ETag_FOLDER'
         Location:
           $ref: '#/components/headers/Location_directory'
-    404_unknown_ehr_id:
-      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist.
-
-        '
-    404_directory_unknown_ehr_id_or_no_version_uid_or_no_path:
-      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist, or when a directory with `version_uid` does not exist, or when `path` does not exist within the directory.
-
-        '
-    404_directory_unknown_ehr_id_or_no_version_at_time_or_no_path:
-      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist, or when a directory does not exist at the specified `version_at_time`, or when `path` does not exists within the directory.
-
-        '
-    204_because_deleted_at_time:
-      description: '`204 No Content` is returned when the resource identified by the request parameters (at specified `version_at_time`) time has been deleted.
-
-        '
-    200_FOLDER_retrieved:
-      description: '`200 OK` is returned when the FOLDER is successfully retrieved.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Folder'
     200_directory_updated:
       description: '`200 OK` is returned when directory was successfully updated and the updated resource is returned in the body when `Prefer` header value is `return=representation`.
 
@@ -1350,29 +1323,46 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Folder'
-  parameters:
-    version_at_time:
-      name: version_at_time
-      in: query
-      description: 'A given time in the extended ISO 8601 format.
+    404_unknown_ehr_id:
+      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist.
 
         '
-      style: form
-      explode: true
-      schema:
-        type: string
-        examples:
-        - '2015-01-20T19:30:22.765+01:00'
-    If-Match:
-      name: If-Match
-      in: header
-      description: "Header to make the request conditional. \nTogether with `ETag` request tag, it helps to prevent simultaneous updates of a resource from overwriting each other (\"mid-air collisions\").\nThe format is always an `version_uid` identifier enclosed by double quotes.\nThe operation will be performed only if the existing latest `version_uid` of the resource (i.e. the `preceding_version_uid`) matches this header's value.\n"
+    200_FOLDER_retrieved:
+      description: '`200 OK` is returned when the FOLDER is successfully retrieved.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Folder'
+    412_directory:
+      description: '`412 Precondition Failed` is returned when `If-Match` request header doesn''t match the latest version on the service side.
+
+        Returns also latest `version_uid` in the `Location` and `ETag` headers.
+
+        '
+      headers:
+        ETag:
+          $ref: '#/components/headers/ETag_FOLDER'
+        Location:
+          $ref: '#/components/headers/Location_directory'
+    404_directory_unknown_ehr_id_or_no_version_at_time_or_no_path:
+      description: '`404 Not Found` is returned when an EHR with `ehr_id` does not exist, or when a directory does not exist at the specified `version_at_time`, or when `path` does not exists within the directory.
+
+        '
+  parameters:
+    version_uid:
+      name: version_uid
+      in: path
+      description: 'VERSION identifier taken from VERSION.uid.value.
+
+        '
       required: true
       style: simple
       schema:
         type: string
         examples:
-        - '"6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::1"'
+        - 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
     Prefer:
       name: Prefer
       in: header
@@ -1403,18 +1393,6 @@ components:
         type: string
         examples:
         - return=representation, include_item_tags
-    version_uid:
-      name: version_uid
-      in: path
-      description: 'VERSION identifier taken from VERSION.uid.value.
-
-        '
-      required: true
-      style: simple
-      schema:
-        type: string
-        examples:
-        - 6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::2
     ehr_id:
       name: ehr_id
       in: path
@@ -1427,6 +1405,18 @@ components:
         type: string
         examples:
         - 7d44b88c-4199-4bad-97dc-d78268e01398
+    version_at_time:
+      name: version_at_time
+      in: query
+      description: 'A given time in the extended ISO 8601 format.
+
+        '
+      style: form
+      explode: true
+      schema:
+        type: string
+        examples:
+        - '2015-01-20T19:30:22.765+01:00'
     path:
       name: path
       in: query
@@ -1439,7 +1429,25 @@ components:
         type: string
         examples:
         - episodes/a/b/c
+    If-Match:
+      name: If-Match
+      in: header
+      description: "Header to make the request conditional. \nTogether with `ETag` request tag, it helps to prevent simultaneous updates of a resource from overwriting each other (\"mid-air collisions\").\nThe format is always an `version_uid` identifier enclosed by double quotes.\nThe operation will be performed only if the existing latest `version_uid` of the resource (i.e. the `preceding_version_uid`) matches this header's value.\n"
+      required: true
+      style: simple
+      schema:
+        type: string
+        examples:
+        - '"6cb19121-4307-4648-9da0-d62e4d51f19b::cataniamc.prod.cadasto.com::1"'
   headers:
+    ETag_FOLDER:
+      description: 'The `ETag` (i.e. entity tag) response header is an identifier (e.g. a `version_uid` enclosed by double quotes) for a specific version of a resource.
+
+        '
+      schema:
+        type: string
+        examples:
+        - '"8849182c-82ad-4088-a07f-48ead4180515::cataniamc.prod.cadasto.com::1"'
     Location_directory:
       description: 'The `Location` response header indicates the URL of the directory FOLDER resource.
 
@@ -1449,14 +1457,6 @@ components:
         format: url
         examples:
         - https://cataniamc.prod.cadasto.com/v1/ehr/7d44b88c-4199-4bad-97dc-d78268e01398/directory/8849182c-82ad-4088-a07f-48ead4180515::cataniamc.prod.cadasto.com::1
-    ETag_FOLDER:
-      description: 'The `ETag` (i.e. entity tag) response header is an identifier (e.g. a `version_uid` enclosed by double quotes) for a specific version of a resource.
-
-        '
-      schema:
-        type: string
-        examples:
-        - '"8849182c-82ad-4088-a07f-48ead4180515::cataniamc.prod.cadasto.com::1"'
 x-tagGroups:
 - name: Resource endpoints
   tags:

@@ -93,68 +93,6 @@ paths:
           $ref: '#/components/responses/404_unknown_template_id_or_version'
 components:
   schemas:
-    TermBindings:
-      title: TermBindings
-      required:
-      - SNOMED-CT
-      type: object
-      properties:
-        SNOMED-CT:
-          $ref: '#/components/schemas/SNOMEDCT'
-      examples:
-      - SNOMED-CT:
-          value: '163030003'
-          terminologyId: SNOMED-CT(2003)
-    TemplateList:
-      title: TemplateList
-      type: array
-      items:
-        $ref: '#/components/schemas/TemplateMetadata'
-      description: 'List of uploaded TEMPLATE resources.
-
-        '
-    Validation1:
-      title: Validation1
-      required:
-      - range
-      type: object
-      properties:
-        range:
-          $ref: '#/components/schemas/Range'
-        precision:
-          $ref: '#/components/schemas/Precision'
-      examples:
-      - range:
-          minOp: '>='
-          min: 0
-          maxOp: <
-          max: 1000
-        precision:
-          minOp: '>='
-          min: 0
-          maxOp: <=
-          max: 0
-    Input:
-      title: Input
-      required:
-      - type
-      type: object
-      properties:
-        type:
-          type: string
-        suffix:
-          type: string
-        list:
-          type: array
-          items:
-            $ref: '#/components/schemas/List'
-          description: ''
-        defaultValue:
-          type: string
-        validation:
-          $ref: '#/components/schemas/Validation1'
-      examples:
-      - type: TEXT
     LocalizedNames2:
       title: LocalizedNames2
       required:
@@ -167,222 +105,18 @@ components:
           type: string
       examples:
       - sl: Tagi
-    Annotations1:
-      title: Annotations1
-      type: object
-      properties:
-        comment:
-          type: string
-        view:pass_through:
-          type: string
-      examples:
-      - comment: 'Perloff D, Grim C, Flack J, Frohlich ED, Hill M, McDonald M, Morgenstern BZ. Human blood pressure determination by sphygmomanometry. Circulation 1993;88;2460-2470. '
-    Child3:
-      title: Child3
+    LocalizedNames:
+      title: LocalizedNames
       required:
-      - id
-      - localizedName
-      - rmType
-      - nodeId
-      - min
-      - max
-      - localizedNames
-      - localizedDescriptions
-      - aqlPath
-      - inputs
+      - en
       type: object
       properties:
-        id:
-          type: string
-        localizedName:
-          type: string
-        rmType:
-          type: string
-        nodeId:
-          type: string
-        min:
-          type: integer
-          format: int32
-        max:
-          type: integer
-          format: int32
-        localizedNames:
-          $ref: '#/components/schemas/LocalizedNames1'
-        localizedDescriptions:
-          $ref: '#/components/schemas/LocalizedDescriptions'
-        aqlPath:
-          type: string
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Input1'
-          description: ''
-        name:
+        en:
           type: string
       examples:
-      - id: count_value
-        localizedName: Size
-        rmType: DV_COUNT
-        nodeId: ''
-        min: 0
-        max: 1
-        localizedNames:
-          sl: Velikost
-        localizedDescriptions:
-          sl: Velikost naprave
-        aqlPath: /content[openEHR-EHR-OBSERVATION.blood_pressure.v1]/protocol[at0011]/items[openEHR-EHR-CLUSTER.device.v1]/items[at0016]/value
-        inputs:
-        - type: INTEGER
-    LocalizedLabels:
-      title: LocalizedLabels
-      required:
-      - sl
-      type: object
-      properties:
-        sl:
-          type: string
-      examples:
-      - sl: Gol
-    LocalizedNames1:
-      title: LocalizedNames1
-      required:
-      - sl
-      type: object
-      properties:
-        sl:
-          type: string
-      examples:
-      - sl: Podrobnosti
-    Validation:
-      title: Validation
-      type: object
-      properties:
-        precision:
-          $ref: '#/components/schemas/Precision'
-        range:
-          $ref: '#/components/schemas/Range'
-      examples:
-      - precision:
-          minOp: '>='
-          min: 1
-          maxOp: <=
-          max: 1
-    Child2:
-      title: Child2
-      required:
-      - id
-      - name
-      - localizedName
-      - rmType
-      - nodeId
-      - min
-      - max
-      - localizedNames
-      - localizedDescriptions
-      - aqlPath
-      - inputs
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        localizedName:
-          type: string
-        rmType:
-          type: string
-        nodeId:
-          type: string
-        min:
-          type: integer
-          format: int32
-        max:
-          type: integer
-          format: int32
-        localizedNames:
-          $ref: '#/components/schemas/LocalizedNames2'
-        localizedDescriptions:
-          $ref: '#/components/schemas/LocalizedDescriptions'
-        annotations:
-          $ref: '#/components/schemas/Annotations'
-        aqlPath:
-          type: string
-        inputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/Input'
-          description: ''
-        dependsOn:
-          type: array
-          items:
-            type: string
-          description: ''
-        inContext:
-          type: boolean
-        termBindings:
-          $ref: '#/components/schemas/TermBindings'
-        children:
-          type: array
-          items:
-            $ref: '#/components/schemas/Child3'
-          description: ''
-      examples:
-      - id: tags
-        name: Tags
-        localizedName: Tags
-        rmType: DV_TEXT
-        nodeId: at0008
-        min: 1
-        max: -1
-        localizedNames:
-          sl: Tagi
-        localizedDescriptions:
-          sl: '*'
-        annotations:
-          comment: Tags applied to the composition. They can contain various ids, such as episode id, central case id or other types of information forming composition meta-data.
-        aqlPath: /context/other_context[at0001]/items[openEHR-EHR-CLUSTER.context_detail.v1]/items[at0008]/value
-        inputs:
-        - type: TEXT
-    SNOMEDCT:
-      title: SNOMEDCT
-      required:
-      - value
-      - terminologyId
-      type: object
-      properties:
-        value:
-          type: string
-        terminologyId:
-          type: string
-      examples:
-      - value: '163030003'
-        terminologyId: SNOMED-CT(2003)
-    List2:
-      title: List2
-      required:
-      - value
-      - label
-      - localizedLabels
-      type: object
-      properties:
-        value:
-          type: string
-        label:
-          type: string
-        localizedLabels:
-          $ref: '#/components/schemas/LocalizedLabels'
-      examples:
-      - value: '433'
-        label: event
-        localizedLabels:
-          sl: ''
-    OperationalTemplate:
-      title: OPERATIONAL_TEMPLATE
-      type: object
-      xml:
-        name: response200
-    Input1:
-      title: Input1
+      - en: Vital Signs
+    Input2:
+      title: Input2
       required:
       - type
       type: object
@@ -391,34 +125,13 @@ components:
           type: string
         suffix:
           type: string
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/List1'
+          description: ''
       examples:
-      - type: INTEGER
-    TemplateMetadata:
-      title: TemplateMetadata
-      required:
-      - template_id
-      - concept
-      - archetype_id
-      - created_timestamp
-      type: object
-      properties:
-        template_id:
-          type: string
-        version:
-          type: string
-        concept:
-          type: string
-        archetype_id:
-          type: string
-        created_timestamp:
-          type: string
-      description: Uploaded TEMPLATE meta information.
-      examples:
-      - template_id: openEHR-EHR-COMPOSITION.t_vital_signs.v1.0.0
-        version: 1.0.1
-        concept: Vital Signs
-        archetype_id: openEHR-EHR-COMPOSITION.encounter.v1
-        created_timestamp: '2017-08-14T19:24:56.639Z'
+      - type: DATETIME
     Range:
       title: Range
       required:
@@ -441,132 +154,49 @@ components:
         min: 0
         maxOp: <
         max: 1000
-    List1:
-      title: List1
+    TermBindings:
+      title: TermBindings
       required:
-      - value
-      - label
-      - localizedLabels
-      - localizedDescriptions
+      - SNOMED-CT
       type: object
       properties:
-        value:
-          type: string
-        label:
-          type: string
-        localizedLabels:
-          $ref: '#/components/schemas/LocalizedLabels'
-        localizedDescriptions:
-          $ref: '#/components/schemas/LocalizedDescriptions'
+        SNOMED-CT:
+          $ref: '#/components/schemas/SNOMEDCT'
       examples:
-      - value: at0022
-        label: Mouth
-        localizedLabels:
-          sl: Usta
-        localizedDescriptions:
-          sl: '*Temperature is measured within the mouth(en)'
-    Input2:
-      title: Input2
+      - SNOMED-CT:
+          value: '163030003'
+          terminologyId: SNOMED-CT(2003)
+    Validation1:
+      title: Validation1
       required:
-      - type
+      - range
       type: object
       properties:
-        type:
-          type: string
-        suffix:
-          type: string
-        list:
-          type: array
-          items:
-            $ref: '#/components/schemas/List1'
-          description: ''
+        range:
+          $ref: '#/components/schemas/Range'
+        precision:
+          $ref: '#/components/schemas/Precision'
       examples:
-      - type: DATETIME
-    Input3:
-      title: Input3
+      - range:
+          minOp: '>='
+          min: 0
+          maxOp: <
+          max: 1000
+        precision:
+          minOp: '>='
+          min: 0
+          maxOp: <=
+          max: 0
+    LocalizedNames1:
+      title: LocalizedNames1
       required:
-      - suffix
-      - type
+      - sl
       type: object
       properties:
-        suffix:
-          type: string
-        type:
-          type: string
-        list:
-          type: array
-          items:
-            $ref: '#/components/schemas/List2'
-          description: ''
-        terminology:
+        sl:
           type: string
       examples:
-      - suffix: code
-        type: CODED_TEXT
-        list:
-        - value: '433'
-          label: event
-          localizedLabels:
-            sl: ''
-        terminology: openehr
-    WebTemplate:
-      title: WebTemplate
-      required:
-      - templateId
-      - version
-      - defaultLanguage
-      - languages
-      - tree
-      type: object
-      properties:
-        templateId:
-          type: string
-        version:
-          type: string
-        defaultLanguage:
-          type: string
-        languages:
-          type: array
-          items:
-            type: string
-        tree:
-          $ref: '#/components/schemas/Tree'
-    Annotations:
-      title: Annotations
-      type: object
-      properties:
-        comment:
-          type: string
-        default:
-          type: string
-      examples:
-      - comment: Tags applied to the composition. They can contain various ids, such as episode id, central case id or other types of information forming composition meta-data.
-    List:
-      title: List
-      required:
-      - value
-      - label
-      type: object
-      properties:
-        value:
-          type: string
-        label:
-          type: string
-        validation:
-          $ref: '#/components/schemas/Validation'
-        localizedLabels:
-          $ref: '#/components/schemas/LocalizedLabels'
-        localizedDescriptions:
-          $ref: '#/components/schemas/LocalizedDescriptions'
-      examples:
-      - value: °C
-        label: °C
-        validation:
-          precision:
-            minOp: '>='
-            min: 1
-            maxOp: <=
-            max: 1
+      - sl: Podrobnosti
     Child:
       title: Child
       required:
@@ -695,6 +325,393 @@ components:
         min: 1
         maxOp: <=
         max: 1
+    Input:
+      title: Input
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+        suffix:
+          type: string
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/List'
+          description: ''
+        defaultValue:
+          type: string
+        validation:
+          $ref: '#/components/schemas/Validation1'
+      examples:
+      - type: TEXT
+    Validation:
+      title: Validation
+      type: object
+      properties:
+        precision:
+          $ref: '#/components/schemas/Precision'
+        range:
+          $ref: '#/components/schemas/Range'
+      examples:
+      - precision:
+          minOp: '>='
+          min: 1
+          maxOp: <=
+          max: 1
+    Tree:
+      title: Tree
+      required:
+      - id
+      - name
+      - localizedName
+      - rmType
+      - nodeId
+      - min
+      - max
+      - localizedNames
+      - localizedDescriptions
+      - aqlPath
+      - children
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        localizedName:
+          type: string
+        rmType:
+          type: string
+        nodeId:
+          type: string
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        localizedNames:
+          $ref: '#/components/schemas/LocalizedNames'
+        localizedDescriptions:
+          $ref: '#/components/schemas/LocalizedDescriptions'
+        aqlPath:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Child'
+    WebTemplate:
+      title: WebTemplate
+      required:
+      - templateId
+      - version
+      - defaultLanguage
+      - languages
+      - tree
+      type: object
+      properties:
+        templateId:
+          type: string
+        version:
+          type: string
+        defaultLanguage:
+          type: string
+        languages:
+          type: array
+          items:
+            type: string
+        tree:
+          $ref: '#/components/schemas/Tree'
+    Annotations:
+      title: Annotations
+      type: object
+      properties:
+        comment:
+          type: string
+        default:
+          type: string
+      examples:
+      - comment: Tags applied to the composition. They can contain various ids, such as episode id, central case id or other types of information forming composition meta-data.
+    LocalizedDescriptions:
+      title: LocalizedDescriptions
+      required:
+      - sl
+      type: object
+      properties:
+        sl:
+          type: string
+      examples:
+      - sl: Generic encounter or progress note composition
+    TemplateList:
+      title: TemplateList
+      type: array
+      items:
+        $ref: '#/components/schemas/TemplateMetadata'
+      description: 'List of uploaded TEMPLATE resources.
+
+        '
+    Child2:
+      title: Child2
+      required:
+      - id
+      - name
+      - localizedName
+      - rmType
+      - nodeId
+      - min
+      - max
+      - localizedNames
+      - localizedDescriptions
+      - aqlPath
+      - inputs
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        localizedName:
+          type: string
+        rmType:
+          type: string
+        nodeId:
+          type: string
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        localizedNames:
+          $ref: '#/components/schemas/LocalizedNames2'
+        localizedDescriptions:
+          $ref: '#/components/schemas/LocalizedDescriptions'
+        annotations:
+          $ref: '#/components/schemas/Annotations'
+        aqlPath:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Input'
+          description: ''
+        dependsOn:
+          type: array
+          items:
+            type: string
+          description: ''
+        inContext:
+          type: boolean
+        termBindings:
+          $ref: '#/components/schemas/TermBindings'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Child3'
+          description: ''
+      examples:
+      - id: tags
+        name: Tags
+        localizedName: Tags
+        rmType: DV_TEXT
+        nodeId: at0008
+        min: 1
+        max: -1
+        localizedNames:
+          sl: Tagi
+        localizedDescriptions:
+          sl: '*'
+        annotations:
+          comment: Tags applied to the composition. They can contain various ids, such as episode id, central case id or other types of information forming composition meta-data.
+        aqlPath: /context/other_context[at0001]/items[openEHR-EHR-CLUSTER.context_detail.v1]/items[at0008]/value
+        inputs:
+        - type: TEXT
+    TemplateMetadata:
+      title: TemplateMetadata
+      required:
+      - template_id
+      - concept
+      - archetype_id
+      - created_timestamp
+      type: object
+      properties:
+        template_id:
+          type: string
+        version:
+          type: string
+        concept:
+          type: string
+        archetype_id:
+          type: string
+        created_timestamp:
+          type: string
+      description: Uploaded TEMPLATE meta information.
+      examples:
+      - template_id: openEHR-EHR-COMPOSITION.t_vital_signs.v1.0.0
+        version: 1.0.1
+        concept: Vital Signs
+        archetype_id: openEHR-EHR-COMPOSITION.encounter.v1
+        created_timestamp: '2017-08-14T19:24:56.639Z'
+    Input1:
+      title: Input1
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+        suffix:
+          type: string
+      examples:
+      - type: INTEGER
+    List1:
+      title: List1
+      required:
+      - value
+      - label
+      - localizedLabels
+      - localizedDescriptions
+      type: object
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+        localizedLabels:
+          $ref: '#/components/schemas/LocalizedLabels'
+        localizedDescriptions:
+          $ref: '#/components/schemas/LocalizedDescriptions'
+      examples:
+      - value: at0022
+        label: Mouth
+        localizedLabels:
+          sl: Usta
+        localizedDescriptions:
+          sl: '*Temperature is measured within the mouth(en)'
+    SNOMEDCT:
+      title: SNOMEDCT
+      required:
+      - value
+      - terminologyId
+      type: object
+      properties:
+        value:
+          type: string
+        terminologyId:
+          type: string
+      examples:
+      - value: '163030003'
+        terminologyId: SNOMED-CT(2003)
+    Annotations1:
+      title: Annotations1
+      type: object
+      properties:
+        comment:
+          type: string
+        view:pass_through:
+          type: string
+      examples:
+      - comment: 'Perloff D, Grim C, Flack J, Frohlich ED, Hill M, McDonald M, Morgenstern BZ. Human blood pressure determination by sphygmomanometry. Circulation 1993;88;2460-2470. '
+    LocalizedLabels:
+      title: LocalizedLabels
+      required:
+      - sl
+      type: object
+      properties:
+        sl:
+          type: string
+      examples:
+      - sl: Gol
+    Child3:
+      title: Child3
+      required:
+      - id
+      - localizedName
+      - rmType
+      - nodeId
+      - min
+      - max
+      - localizedNames
+      - localizedDescriptions
+      - aqlPath
+      - inputs
+      type: object
+      properties:
+        id:
+          type: string
+        localizedName:
+          type: string
+        rmType:
+          type: string
+        nodeId:
+          type: string
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        localizedNames:
+          $ref: '#/components/schemas/LocalizedNames1'
+        localizedDescriptions:
+          $ref: '#/components/schemas/LocalizedDescriptions'
+        aqlPath:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Input1'
+          description: ''
+        name:
+          type: string
+      examples:
+      - id: count_value
+        localizedName: Size
+        rmType: DV_COUNT
+        nodeId: ''
+        min: 0
+        max: 1
+        localizedNames:
+          sl: Velikost
+        localizedDescriptions:
+          sl: Velikost naprave
+        aqlPath: /content[openEHR-EHR-OBSERVATION.blood_pressure.v1]/protocol[at0011]/items[openEHR-EHR-CLUSTER.device.v1]/items[at0016]/value
+        inputs:
+        - type: INTEGER
+    OperationalTemplate:
+      title: OPERATIONAL_TEMPLATE
+      type: object
+      xml:
+        name: response200
+    Input3:
+      title: Input3
+      required:
+      - suffix
+      - type
+      type: object
+      properties:
+        suffix:
+          type: string
+        type:
+          type: string
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/List2'
+          description: ''
+        terminology:
+          type: string
+      examples:
+      - suffix: code
+        type: CODED_TEXT
+        list:
+        - value: '433'
+          label: event
+          localizedLabels:
+            sl: ''
+        terminology: openehr
     Child1:
       title: Child1
       required:
@@ -784,119 +801,52 @@ components:
           aqlPath: /context/other_context[at0001]/items[openEHR-EHR-CLUSTER.context_detail.v1]/items[at0008]/value
           inputs:
           - type: TEXT
-    LocalizedNames:
-      title: LocalizedNames
+    List2:
+      title: List2
       required:
-      - en
+      - value
+      - label
+      - localizedLabels
       type: object
       properties:
-        en:
+        value:
           type: string
+        label:
+          type: string
+        localizedLabels:
+          $ref: '#/components/schemas/LocalizedLabels'
       examples:
-      - en: Vital Signs
-    LocalizedDescriptions:
-      title: LocalizedDescriptions
+      - value: '433'
+        label: event
+        localizedLabels:
+          sl: ''
+    List:
+      title: List
       required:
-      - sl
+      - value
+      - label
       type: object
       properties:
-        sl:
+        value:
           type: string
-      examples:
-      - sl: Generic encounter or progress note composition
-    Tree:
-      title: Tree
-      required:
-      - id
-      - name
-      - localizedName
-      - rmType
-      - nodeId
-      - min
-      - max
-      - localizedNames
-      - localizedDescriptions
-      - aqlPath
-      - children
-      type: object
-      properties:
-        id:
+        label:
           type: string
-        name:
-          type: string
-        localizedName:
-          type: string
-        rmType:
-          type: string
-        nodeId:
-          type: string
-        min:
-          type: integer
-          format: int32
-        max:
-          type: integer
-          format: int32
-        localizedNames:
-          $ref: '#/components/schemas/LocalizedNames'
+        validation:
+          $ref: '#/components/schemas/Validation'
+        localizedLabels:
+          $ref: '#/components/schemas/LocalizedLabels'
         localizedDescriptions:
           $ref: '#/components/schemas/LocalizedDescriptions'
-        aqlPath:
-          type: string
-        children:
-          type: array
-          items:
-            $ref: '#/components/schemas/Child'
-  parameters:
-    Accept_template:
-      name: Accept
-      in: header
-      description: 'Header to indicate the expected response format.
-
-        '
-      required: true
-      style: simple
-      schema:
-        enum:
-        - application/json
-        - application/xml
-        - text/plain
-        - application/openehr.wt+json
-        type: string
-        examples:
-        - application/xml
-    Prefer:
-      name: Prefer
-      in: header
-      description: 'Request header to indicate the preference over response details.
-
-        The response will contain the entire resource when the `Prefer` header has a value of `return=representation`.
-
-        '
-      required: false
-      style: simple
-      schema:
-        type: string
-        enum:
-        - return=representation
-        - return=minimal
-        default: return=minimal
-    template_id:
-      name: template_id
-      in: path
-      description: 'Template identifier.
-
-        '
-      required: true
-      style: simple
-      schema:
-        type: string
-        examples:
-        - Vital Signs
+      examples:
+      - value: °C
+        label: °C
+        validation:
+          precision:
+            minOp: '>='
+            min: 1
+            maxOp: <=
+            max: 1
   responses:
-    400_invalid_template_id:
-      description: '`400 Bad Request` is returned when the request has invalid `template_id` (i.e. an incorrectly formatted `template_id`).
-
-        '
     201_Template_adl1_4_upload:
       description: '`201 Created` is returned when the template has been successfully uploaded.
 
@@ -919,21 +869,6 @@ components:
         application/xml:
           schema:
             $ref: '#/components/schemas/OperationalTemplate'
-    '406':
-      description: '`406 Not Acceptable` is returned when the service cannot produce a response matching `Accept` request header, i.e. content type or format is not supported.
-
-        '
-    200_ExampleComposition_generated:
-      description: '`200 OK` is returned when the example composition is successfully retrieved.
-
-        '
-      content:
-        application/xml:
-          schema:
-            type: string
-          examples:
-            default:
-              value: "<composition xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openehr.org/v1\">\n    <name>\n        <value>Vital Signs</value>\n    </name>\n    <archetype_node_id>openEHR-EHR-COMPOSITION.encounter.v1</archetype_node_id>\n    <language>\n        <terminology_id>\n            <value>ISO_639-1</value>\n        </terminology_id>\n        <code_string>en</code_string>\n    </language>\n    ..."
     200_TemplateList_adl1_4:
       description: '`200 OK` is returned when the template list is successfully retrieved.
 
@@ -949,6 +884,41 @@ components:
                 concept: Vital Signs
                 archetype_id: openEHR-EHR-COMPOSITION.encounter.v1
                 created_timestamp: '2017-08-14T19:24:56.639Z'
+    404_unknown_template_id:
+      description: '`404 Not Found` is returned when a template with the specified `template_id` does not exist.
+
+        '
+    409_template_already_exists:
+      description: '`409 Conflict` is returned when a template with same `template_id` (at given version, if supplied) already exists.
+
+        '
+    400_invalid_template_id:
+      description: '`400 Bad Request` is returned when the request has invalid `template_id` (i.e. an incorrectly formatted `template_id`).
+
+        '
+    '406':
+      description: '`406 Not Acceptable` is returned when the service cannot produce a response matching `Accept` request header, i.e. content type or format is not supported.
+
+        '
+    404_unknown_template_id_or_version:
+      description: '`404 Not Found` is returned when a template with the specified `template_id` at given `version` does not exist.
+
+        '
+    400_invalid_template_content:
+      description: '`400 Bad Request` is returned when unable to upload a template, because of invalid content.
+
+        '
+    200_ExampleComposition_generated:
+      description: '`200 OK` is returned when the example composition is successfully retrieved.
+
+        '
+      content:
+        application/xml:
+          schema:
+            type: string
+          examples:
+            default:
+              value: "<composition xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openehr.org/v1\">\n    <name>\n        <value>Vital Signs</value>\n    </name>\n    <archetype_node_id>openEHR-EHR-COMPOSITION.encounter.v1</archetype_node_id>\n    <language>\n        <terminology_id>\n            <value>ISO_639-1</value>\n        </terminology_id>\n        <code_string>en</code_string>\n    </language>\n    ..."
     200_Template_adl1_4_retrieved:
       description: '`200 OK` is returned when the template is successfully retrieved.
 
@@ -965,23 +935,15 @@ components:
         application/openehr.wt+json:
           schema:
             $ref: '#/components/schemas/WebTemplate'
-    400_invalid_template_content:
-      description: '`400 Bad Request` is returned when unable to upload a template, because of invalid content.
-
-        '
-    404_unknown_template_id:
-      description: '`404 Not Found` is returned when a template with the specified `template_id` does not exist.
-
-        '
-    409_template_already_exists:
-      description: '`409 Conflict` is returned when a template with same `template_id` (at given version, if supplied) already exists.
-
-        '
-    404_unknown_template_id_or_version:
-      description: '`404 Not Found` is returned when a template with the specified `template_id` at given `version` does not exist.
-
-        '
   headers:
+    ETag_Template_adl1_4:
+      description: 'The `ETag` (i.e. entity tag) response header is an identifier of Template.
+
+        '
+      schema:
+        type: string
+        examples:
+        - '"b4d7f203-b329-4e89-a58a-c605b19e94de"'
     Location_Template_adl1_4:
       description: 'The `Location` response header indicates the URL of the Template resource.
 
@@ -991,14 +953,52 @@ components:
         format: url
         examples:
         - https://cataniamc.prod.cadasto.com/v1/definition/template/adl1.4/Vital%20Signs
-    ETag_Template_adl1_4:
-      description: 'The `ETag` (i.e. entity tag) response header is an identifier of Template.
+  parameters:
+    template_id:
+      name: template_id
+      in: path
+      description: 'Template identifier.
 
         '
+      required: true
+      style: simple
       schema:
         type: string
         examples:
-        - '"b4d7f203-b329-4e89-a58a-c605b19e94de"'
+        - Vital Signs
+    Prefer:
+      name: Prefer
+      in: header
+      description: 'Request header to indicate the preference over response details.
+
+        The response will contain the entire resource when the `Prefer` header has a value of `return=representation`.
+
+        '
+      required: false
+      style: simple
+      schema:
+        type: string
+        enum:
+        - return=representation
+        - return=minimal
+        default: return=minimal
+    Accept_template:
+      name: Accept
+      in: header
+      description: 'Header to indicate the expected response format.
+
+        '
+      required: true
+      style: simple
+      schema:
+        enum:
+        - application/json
+        - application/xml
+        - text/plain
+        - application/openehr.wt+json
+        type: string
+        examples:
+        - application/xml
 x-tagGroups:
 - name: Resource endpoints
   tags:
