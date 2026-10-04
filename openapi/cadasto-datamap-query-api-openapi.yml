@@ -309,12 +309,6 @@ components:
       required: false
       schema:
         type: string
-    orderBy:
-      name: order_by
-      in: query
-      required: false
-      schema:
-        type: string
     uidBasedId:
       name: uidBasedId
       in: path
@@ -342,6 +336,12 @@ components:
       schema:
         type: integer
         minimum: 1
+    orderBy:
+      name: order_by
+      in: query
+      required: false
+      schema:
+        type: string
   securitySchemes:
     bearerAuth:
       type: http

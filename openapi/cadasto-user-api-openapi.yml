@@ -131,6 +131,13 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
+    identifierType:
+      name: identifierType
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Identifier type. Use `partyUid` when providing a UUID.
     role:
       name: role
       in: query
@@ -141,13 +148,6 @@ components:
         - patient
         - practitioner
       description: User role to resolve (patient or practitioner).
-    identifierType:
-      name: identifierType
-      in: query
-      required: true
-      schema:
-        type: string
-      description: Identifier type. Use `partyUid` when providing a UUID.
     identifier:
       name: identifier
       in: query

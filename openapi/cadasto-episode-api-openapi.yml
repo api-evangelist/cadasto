@@ -213,14 +213,14 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    ehrUidPath:
-      name: ehrUid
+    uid:
+      name: uid
       in: path
       required: true
       schema:
         type: string
-    uid:
-      name: uid
+    ehrUidPath:
+      name: ehrUid
       in: path
       required: true
       schema:
