@@ -39,15 +39,6 @@ paths:
         '200':
           $ref: '#/components/responses/200_options'
 components:
-  headers:
-    Allow:
-      description: 'The `Allow` header lists the set of methods supported.
-
-        '
-      schema:
-        type: string
-        examples:
-        - GET, POST, PUT, DELETE, OPTIONS
   responses:
     200_options:
       description: '`200 OK` is returned when options and conformance statement was retrieved successfully.
@@ -60,6 +51,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Options'
+  headers:
+    Allow:
+      description: 'The `Allow` header lists the set of methods supported.
+
+        '
+      schema:
+        type: string
+        examples:
+        - GET, POST, PUT, DELETE, OPTIONS
   schemas:
     Options:
       title: Options
