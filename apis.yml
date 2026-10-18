@@ -466,6 +466,8 @@ apis:
   humanURL: https://docs.cadasto.io/ehr-api
   baseURL: https://{mycompany}.api.prod.cadasto.io/openehr/v1
   tags:
+  - Electronic Health Records
+  tags_raw:
   - EHR
   properties:
   - type: OpenAPI
